@@ -91,8 +91,8 @@ try {
     usort($feeds, function ($x, $y) {
         return strtotime($y->pubDate) - strtotime($x->pubDate);
     });
-    $newfeeds=[];
-    $sentlinks=[];
+    $newfeeds=array();
+    $sentlinks=array();
     foreach ($feeds as $f) {
         if(!in_array($f->link, sentlinks)) {
             array_push($sentlinks,$f->link);
