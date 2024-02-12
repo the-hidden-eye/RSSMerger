@@ -86,12 +86,19 @@ try {
 try {
     // Combine
     $feeds = array_merge(...$feeds);
-
+    
     // Sort
     usort($feeds, function ($x, $y) {
         return strtotime($y->pubDate) - strtotime($x->pubDate);
     });
-
+    $newfeeds=[];
+    sentlinks=[];
+    foreach ($feeds as $f) {
+        if(!in_array($f->link, sentlinks)) {
+            array_push($sentlinks,$f->link);
+            array_push($newfeeds,$f);
+        }
+    }
     // Create RSS
     $root = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/';
     $rss = new SimpleXMLElement('<rss><channel><title>RSS Merger</title><description>A PHP tool to merge multiple RSS streams into one output.</description><link>' . $root . '</link></channel></rss>');
