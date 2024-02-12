@@ -8,10 +8,11 @@ $rss = new RSSMerger();
 $sources=$_GET['link'];
 
 //if(!is_array($sources))
-foreach(explode("_SPLITRSS_", $pizza) as $sourcelink) {
+foreach(explode("_SPLITRSS_", $sources) as $sourcelink) {
     $rss->add($sourcelink);
 }
 $rss->sort();
+
 $xml = new RSSFeed("RSS merger","http://daverix.net/rssm/","a simple rss merge script","http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
 $xml->setLanguage("en");
 $feeds = $rss->getFeeds(99);
