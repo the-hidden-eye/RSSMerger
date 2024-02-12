@@ -19,7 +19,6 @@ class RSSMerger {
      */
     function add($url) {
         $xml = new SimpleXMLElement($url, null, true);
-
         foreach($xml->channel->item as $item) {
             $item->sitetitle = $xml->channel->title;
             $item->sitelink = $xml->channel->link;

@@ -3,6 +3,7 @@ require_once "class_rssmerge.php";
 require_once "class_rssfeed.php";
 
 $rss = new RSSMerger();
+
 //$rss->add("http://daverix.net/blog.rss");
 //$rss->add("http://www.laurell.nu/feed.xml");
 $sources=$_GET['link'];
