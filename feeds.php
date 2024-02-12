@@ -94,7 +94,7 @@ try {
     $newfeeds=array();
     $sentlinks=array();
     foreach ($feeds as $f) {
-        if(!in_array($f->link, sentlinks)) {
+        if(!in_array($f->link, $sentlinks)) {
             array_push($sentlinks,$f->link);
             array_push($newfeeds,$f);
         }
