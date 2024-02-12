@@ -92,7 +92,7 @@ try {
         return strtotime($y->pubDate) - strtotime($x->pubDate);
     });
     $newfeeds=[];
-    sentlinks=[];
+    $sentlinks=[];
     foreach ($feeds as $f) {
         if(!in_array($f->link, sentlinks)) {
             array_push($sentlinks,$f->link);
