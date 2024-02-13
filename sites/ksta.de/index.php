@@ -11,8 +11,8 @@ function logheader($term,$msg) {
         header("X-".$term.": ".$msg);
     }
 }
-if(isset($_SERVER['DOCUMENT_ROOT'] )) {
-    $cache_path=$_SERVER['DOCUMENT_ROOT']."/.cache/";
+if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT']) ) {
+    $cache_path=$_SERVER['DOCUMENT_ROOT']."./.cache/";
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
         if (!file_exists($cache_path)) { 
@@ -60,9 +60,12 @@ function xmlencode_notags($input) {
 
 function fgc_ttl($url,$cachetime,$cachepath) {
     $sum=md5($url);
-    $cache_path=$cachepath;
-    $cache_file = $cache_path . $sum.".cache" ;
-    $cache_data = $cache_path . $sum.".cache.data" ;
+    if (!file_exists($cache_path)) { 
+        mkdir($cache_path, 0777, true); 
+    }
+    $cache_path="./".$cachepath;
+    $cache_file = $cache_path .'/'. $sum.".cache" ;
+    $cache_data = $cache_path .'/'. $sum.".cache.data" ;
     $hdrmsg="";
     //$hdrmsg=$cache_file;
     if (!file_exists($cache_path)) { 
@@ -70,7 +73,7 @@ function fgc_ttl($url,$cachetime,$cachepath) {
     }
     $filefound="no";
     if (file_exists($cache_file)) { $filefound="yes" ; }
-    $hdrmsg=$hdrmsg." found :".$filefound;
+    $hdrmsg=$hdrmsg." fgc_found: ".$filefound;
     if (file_exists($cache_file)) {
         $parsedfile=json_decode(file_get_contents($cache_file), true);
         $timediff=(microtime(true) - $parsedfile["time"]) /1000 ;
@@ -79,13 +82,13 @@ function fgc_ttl($url,$cachetime,$cachepath) {
         if(  $timediff  > $cachetime  ) {
         //if(time() - filemtime($cache_file) > $cachetime) {
         //$hdrmsg=$hdrmsg." expired :".$cache_file . $timediff ." / ".$cachetime;
-        $hdrmsg=$hdrmsg." expired :". $timediff ." / ".$cachetime;
+        $hdrmsg=$hdrmsg." found_fgc_expired :". $timediff ." / ".$cachetime;
             $cache=file_get_contents($url);
             //$cacheobj["fgc"]=base64_encode($cache) ;file_put_contents($cache_file, json_encode($cacheobj));
             file_put_contents($cache_data, $cache);
         } else {
             //$hdrmsg=$hdrmsg." cached :".$cache_file;
-            $hdrmsg=$hdrmsg." cached ";
+            $hdrmsg=$hdrmsg." fgc_cached ";
             $cache = file_get_contents($cache_data);
             //$cache=base64_decode($parsedfile["fgc"]);
         }
@@ -131,7 +134,11 @@ $sentlinks=array();
 
 foreach ($doc->getElementsByTagName('item') as $node) {
     $sum=(md5($node->getElementsByTagName('link')->item(0)->nodeValue));
-    $item_cache_file = $cache_path . $sum.".json";
+    $mycachepath=$cache_path."./json_out/";
+    if (!file_exists($mycachepath)) { 
+        mkdir($mycachepath, 0777, true); 
+    }
+    $item_cache_file = $mycachepath .'/'. $sum.".rss.json";
     if(file_exists($item_cache_file)) {
         logheader("FGC-".$sum,"json-cached: ".$item_cache_file);
         //we have a cached json
@@ -141,7 +148,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         //array_push($arrFeeds, $itemRSS);
     } else {
         if($fetched < $maxfetch ) {
-    logheader("FGC-".$sum,"json-fetch: $fetched / $maxfetch : ".$item_cache_file);
+    logheader("FGC-".$sum,"json-new: $fetched / $maxfetch : ".$item_cache_file);
     $mydesc="";
     $mydate="";
     libxml_use_internal_errors(true);
@@ -153,7 +160,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $item_cache_hit=$item_cache_miss+1;
     }
 
-    $rawhtml=mb_convert_encoding(fgc_ttl($node->getElementsByTagName('link')->item(0)->nodeValue,86400,$cache_path), 'HTML-ENTITIES', "UTF-8");
+    $rawhtml=mb_convert_encoding(fgc_ttl($node->getElementsByTagName('link')->item(0)->nodeValue,200000,$cache_path), 'HTML-ENTITIES', "UTF-8");
     //$dom->loadHTML($rawhtml);
     $dom->loadXML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
     libxml_use_internal_errors(false);
