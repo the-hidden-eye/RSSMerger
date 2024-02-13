@@ -96,9 +96,11 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         //    $e->parentNode->removeChild($e);
         //}
         //}
-        
+
         $newhtml=mb_substr($newdom->saveXML(), 6, -7, "UTF-8");
         $newdom->loadHTML($newhtml);
+        $hello=$newdom->documentElement->firstChild;
+        $hello->remove();
         $body = $newdom->documentElement->lastChild;
         $mydesc=$newdom->saveHTML($body);
     }
