@@ -206,16 +206,19 @@ foreach ($doc->getElementsByTagName('item') as $node) {
            array_push($sentimgs,$imgurl);
            }
         }
-        foreach($snipdom->getElementsByTagName('picture') as $par) {
-            $longString = $par->$srcset;
-            //echo $longString;
-            $pics = explode(",", $longString);
-            $imgurl=$pics[0];
-            if(!in_array($imgurl,$sentimgs)){
-               $sndline=$sndline.$snipdom->saveXML($par);
-               array_push($sentimgs,$imgurl);
+        if(empty($sentimgs)) {
+            foreach($snipdom->getElementsByTagName('picture') as $par) {
+                $longString = $par->$srcset;
+                //echo $longString;
+                $pics = explode(",", $longString);
+                $imgurl=$pics[0];
+                if(!in_array($imgurl,$sentimgs)){
+                   $sndline=$sndline.$snipdom->saveXML($par);
+                   array_push($sentimgs,$imgurl);
+                }
             }
         }
+
         //echo $sndline;
     }
     //heading
