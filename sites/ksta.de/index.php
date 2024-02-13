@@ -45,6 +45,9 @@ function fgc_ttl($url,$cachetime,$cachepath) {
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
     }
+    $filefound="no";
+    if (file_exists($cache_file)) { $filefound="yes" ; }
+    header( "X-FGC-Found-".$sum.": "$filefound);
     if (file_exists($cache_file)) {
         $parsedfile=json_decode(file_get_contents($cache_file), true);
         $timediff=(microtime(true) - $parsedfile["time"]) /1000 ;
