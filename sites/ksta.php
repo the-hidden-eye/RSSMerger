@@ -1,6 +1,6 @@
 <?php
 error_reporting(E_ERROR | E_PARSE);
-$maxfetch=5;
+$maxfetch=23;
 
 function fgc($url) {
     $cache_path="cache/";
@@ -44,8 +44,14 @@ function fgc_ttl($url,$cachetime) {
 // Create a new DOMDocument object
 $doc = new DOMDocument();
 // Load the RSS file into the object
-//$doc->load('https://lotta-magazin.de/rss.xml');
-$rawxml=fgc_ttl("https://lotta-magazin.de/rss.xml",3600);
+//$doc->load('https://feed.ksta.de/feed/rss/kultur-medien/index.rss');
+$feedtarget="https://feed.ksta.de/feed/rss/kultur-medien/index.rss";
+if(isset($_GET['feed'])) {
+    // id index exists
+    $feedtarget=$_GET['feed'];
+}
+
+$rawxml=fgc_ttl("https://feed.ksta.de/feed/rss/kultur-medien/index.rss",3600);
 //$dom->loadHTML($rawhtml);
 $doc->loadXML($rawxml);
 
@@ -81,69 +87,29 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     }
     $rawhtml=mb_convert_encoding(fgc($node->getElementsByTagName('link')->item(0)->nodeValue), 'HTML-ENTITIES', "UTF-8"); ;
     //$dom->loadHTML($rawhtml);
-    $dom->loadHTML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+    $dom->loadXML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
     libxml_use_internal_errors(false);
-    try {
-        $mydate=$node->getElementsByTagName('pubDate')->item(0)->nodeValue;
-       } catch (Exception $e) {
-       }
-    if($mydate=="") {
-        $classname="article-meta";
-        $xpath = new DOMXPath($dom);
-        $div = $xpath->query("//*[contains(@class, '$classname')]");
-        //$div = $div->item(0);
-        $div=$div->item(0);
-        //echo $dom->saveXML($div);
-        $newdom = new DOMDocument; 
-        $newdom->loadHTML($dom->saveXML($div));
-        $par = $dom->getElementsByTagName('p')->item(0);
-        $returndate=$dom->saveXML($par);
-        $returndate=str_replace('<p>','',$returndate);
-        $returndate=str_replace('</p>','',$returndate);
-        $returndate=date("D, d M Y H:i:s T", strtotime($returndate));
-        //echo $returndate;
-        $mydate=$returndate;
+    $mydate=$node->getElementsByTagName('pubDate')->item(0)->nodeValue;
+    $rawaddxml="";
+    foreach(["guid","enclosure","content","creator","modified"] as $term){
+        try {
+            $domElement=$node->getElementsByTagName($term)->item(0);
+            if(!($domElement->ownerDocument==null)){
+                $newsnip=$domElement->ownerDocument->saveXML($domElement);
+                $rawaddxml =$rawaddxml."\r\n".$newsnip;
+            }
+        } catch(Exception $e) {
+            //echo "foo";
+        }
+        
     }
-    
+    //echo $rawaddxml;
+
+    //$par = $node->getElementsByTagName('guid')->item(0);
+    //echo $par->saveXML();
     //print($mydate);
     
-    //try {
-    // $mydesc=$node->getElementsByTagName('description')->item(0)->nodeValue;
-    //} catch (Exception $e) {
-    ////}
-    //if($mydesc=="") {
-    //    $classname="article-container";
-    //    libxml_use_internal_errors(true);
-    //    $utfhtml=mb_convert_encoding($rawhtml, 'HTML-ENTITIES', "UTF-8");     
-    //    $dom->loadHTML(mb_encode_numericentity($utfhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
-    //    //$dom->loadHTMLFile($node->getElementsByTagName('link')->item(0)->nodeValue);
-    //    //$dom->loadHTML($rawhtml);
-    //    libxml_use_internal_errors(false);
-    //    $xpath = new DOMXPath($dom);
-    //    $div = $xpath->query("//*[contains(@class, '$classname')]");
-    //    //$div = $div->item(0);
-    //    $div=$div->item(0);
-    //    //echo $dom->saveXML($div);
-    //    $newdom = new DOMDocument;
-    //    $newhtml=$dom->saveXML($div);
-    //    $newdom->loadHTML(mb_substr($dom->saveXML($div), 6, -7, "UTF-8"));
-    //    $xpath = new DOMXPath($newdom);
-    //    $removeclass="column-right";
-    //    $hideclasses=array("header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet');
-    //    foreach($hideclasses as $removeclass) {
-    //    foreach($xpath->query("//*[contains(@class, '$removeclass')]") as $e ) {
-    //        // Delete this node
-    //        $e->parentNode->removeChild($e);
-    //    }
-    //    }
-    //    //$hello=$newdom->documentElement->firstChild;
-    //    //$hello->remove();
-    //    //$newhtml=mb_substr($newdom->saveXML(), 6, -7, "UTF-8");
-    //    $newhtml=$newdom->saveXML();
-    //    $newdom->loadHTML($newhtml);
-    //    $body = $newdom->documentElement->lastChild;
-    //    $mydesc=$newdom->saveHTML($body);
-    //}
+
     if($mydesc=="") {
     $classname="article-container";
     libxml_use_internal_errors(true);
@@ -154,7 +120,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     
     libxml_use_internal_errors(false);
     $xpath = new DOMXPath($dom);
-    $hideclasses=array("header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet');
+    $hideclasses=array("ad_teaser_1","ad_teaser_2","ad_teaser_3","header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet',"trc_rbox_container","dm-taboola","dm-article-action-bar","kk_is_end");
     foreach($hideclasses as $removeclass) {
         foreach($xpath->query("//*[contains(@class, '$removeclass')]") as $e ) {
             // Delete this node
@@ -165,32 +131,95 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     $sndline="";
     $sentimgs=array();
 
-    foreach($dom->getElementsByTagName('picture') as $par) {
+    //foreach($dom->getElementsByTagName('picture') as $par) {
+    //foreach($dom->getElementsByTagName('picture') as $par) {
+    //    $longString = $par->$srcset;
+    //    $pics = explode(",", $longString);
+    //    $imgurl=$pics[0];
+    //    if(!in_array($imgurl,$sentimgs)){
+    //    $sndline=$sndline.$dom->saveXML($par);
+    //    array_push($sentimgs,$imgurl);
+    //    }
+    //}
+    $classname="current-image";
+    foreach($xpath->query("//*[contains(@class, '$classname')]") as $par) {
+        //$newsnip=$domElement->ownerDocument->saveHTML($par);
+        $rawsnip=$dom->saveHTML($par);
+        //echo "$rawsnip";
+        $snipdom = new DOMDocument;
+        $snipdom->loadHTML(mb_encode_numericentity($rawsnip, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+        foreach($snipdom->getElementsByTagName('img') as $par) {
         $longString = $par->$srcset;
+        //echo $longString;
+        $singlesrc = $par->$src;
         $pics = explode(",", $longString);
         $imgurl=$pics[0];
         if(!in_array($imgurl,$sentimgs)){
-        $sndline=$sndline.$dom->saveXML($par);
-        array_push($sentimgs,$imgurl);
+           $sndline=$sndline.$snipdom->saveXML($par);
+           array_push($sentimgs,$imgurl);
         }
+        }
+        foreach($snipdom->getElementsByTagName('picture') as $par) {
+            $longString = $par->$srcset;
+            //echo $longString;
+            $pics = explode(",", $longString);
+            $imgurl=$pics[0];
+            if(!in_array($imgurl,$sentimgs)){
+               $sndline=$sndline.$snipdom->saveXML($par);
+               array_push($sentimgs,$imgurl);
+            }
+            }
+        //echo $sndline;
     }
+    //heading
     $par = $dom->getElementsByTagName('title')->item(0);
-    $sndline=$sndline."<br><h1>".$par->textContent."</h1><br>";
-    //$classname="article-meta";
-    $classname="column-left";
-    $div = $xpath->query("//*[contains(@class, '$classname')]")->item(0);
-    $mydesc=$sendline=$sndline.$dom->saveXML($div)." <br>";
-    }
-    $mydesc=str_replace('="/static','="https://lotta-magazin.de/static',$mydesc);
-    $mydesc=str_replace(',/static',',https://lotta-magazin.de/static',$mydesc);
-    $mydesc=str_replace('</body>','',$mydesc);
-    $mydesc=str_replace('<body>','',$mydesc);
+    $sndline=$sndline."<br>".$par->textContent."<h1><br>";
+    ///////////////////////////////////
+    //intro
 
+    ////$classname="article-meta";
+    $classname="dm-article__intro";
+    $div =  $xpath->query("//*[contains(@class, '$classname')]")->item(0);
+   
+    //var_dump($div);
+    if(!(null==$div)) {
+        $sndline=$sndline.$dom->saveXML($div)." <br>";
+     }
+    //echo "$sndline";
+   // }
+   ////////////////////////////////////////////////////////////
+    //maincontent 
+    $attribute="data-article-content";
+    $novalue="";
+    //$div=$xpath->query('//div/@data-article-content')->item(0);
+    //$div = $xpath->query("//*[@data-article-content='']")->item(0);
+    $classname="kk_is_start";
+    //$div =  $xpath->query("//*[contains(@class, '$classname')]")->item(0)->parentNode;
+    $div=$dom->getElementsByTagName('article')->item(0);
+    //var_dump($div);
+    if(!(null==$div)) {
+        $sndline=$sndline.$dom->saveXML($div)." <br>";
+        //echo $dom->saveXML($div)." <br>";
+     }
+    //echo "$sndline\r\n";
+    $mydesc=$sndline;
+    } // end nodesc
+    //$mydesc=str_replace('="/static','="https://lotta-magazin.de/static',$mydesc);
+    //$mydesc=str_replace(',/static',',https://lotta-magazin.de/static',$mydesc);
+    $mydesc=str_replace('</body>','',$mydesc);
+    $mydesc=str_replace('<body>','',$mydesc);   
+    $mydesc=str_replace('</article>','',$mydesc);
+    $mydesc=str_replace('<article>','',$mydesc);
+    $mydesc=str_replace('<!---->','',$mydesc);
+    $mydesc=str_replace('<!--[-->','',$mydesc);
+    $mydesc=str_replace('<!--]-->','',$mydesc);
+    //echo "$mydesc\r\n";
 	$itemRSS = array (
 		'title' => $node->getElementsByTagName('title')->item(0)->nodeValue,
 		'desc' => $mydesc,
 		'link' => $node->getElementsByTagName('link')->item(0)->nodeValue,
-		'date' => $mydate
+		'date' => $mydate,
+        'addxml' => $rawaddxml
 	);
     file_put_contents("cache/".md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json", json_encode($itemRSS));
     }
@@ -201,7 +230,6 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 //print_r($arrFeeds);
 
 header( "Content-type: text/xml");
- 
 echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
 <rss version='2.0'>\r\n
 <channel>\r\n
@@ -226,8 +254,8 @@ foreach($arrFeeds as $sendarr) {
   <title>".htmlspecialchars($title)."</title>\r\n
   <link>".htmlspecialchars($link)."</link>\r\n
   <pubDate>$pdate</pubDate>\r\n
-  <description><![CDATA[$description]]></description>
-  </item>\r\n";
+  <description><![CDATA[$description]]></description>\r\n
+  ".$rawaddxml."
+</item>\r\n";
 }
-
 echo "</channel>\r\n</rss>";
