@@ -86,7 +86,9 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $div=$div->item(0);
         //echo $dom->saveXML($div);
         $newdom = new DOMDocument;
-        $newdom->loadHTML(mb_substr($dom->saveXML($div), 6, -7, "UTF-8"));
+        $newhtml=$dom->saveXML($div);
+
+        //$newdom->loadHTML(mb_substr($dom->saveXML($div), 6, -7, "UTF-8"));
         $xpath = new DOMXPath($newdom);
         $removeclass="column-right";
         $hideclasses=array("header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet');
@@ -98,7 +100,8 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         //}
         //$hello=$newdom->documentElement->firstChild;
         //$hello->remove();
-        $newhtml=mb_substr($newdom->saveXML(), 6, -7, "UTF-8");
+        //$newhtml=mb_substr($newdom->saveXML(), 6, -7, "UTF-8");
+        $newhtml=$newdom->saveXML();
         $newdom->loadHTML($newhtml);
 
         $body = $newdom->documentElement->lastChild;
