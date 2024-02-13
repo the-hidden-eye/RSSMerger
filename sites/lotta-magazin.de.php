@@ -130,7 +130,8 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     }
     $par = $dom->getElementsByTagName('title')->item(0);
     $sndline=$sndline."<br>".$par->textContent."<h1><br>";
-    $classname="article-meta";
+    //$classname="article-meta";
+    $classname="column-left";
     $div = $xpath->query("//*[contains(@class, '$classname')]")->item(0);
     $mydesc=$sendline=$sndline.$dom->saveXML($div)." <br>";
     }
