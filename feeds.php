@@ -212,7 +212,7 @@ try {
     $sentlinks=array();
     foreach ($feeds as $feed) {
         $myurl="";
-        //var_dump($feed);
+        var_dump($feed);
         $myurl=(string) $feed->attachments->attachment->attributes()->title;
         var_dump($feed->attributes());
         echo $myurl;
