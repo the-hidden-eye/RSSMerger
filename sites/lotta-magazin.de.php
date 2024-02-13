@@ -148,7 +148,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $longString = $par->$srcset;
         $pics = explode(",", $longString);
         $imgurl=$pics[0];
-        if(!in_array($imgurl)){
+        if(!in_array($imgurl,$sentimgs)){
         $sndline=$sndline.$dom->saveXML($par);
         array_push($sentimgs,$imgurl);
         }
