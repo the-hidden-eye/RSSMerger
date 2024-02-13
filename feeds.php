@@ -99,6 +99,7 @@ try {
             array_push($newfeeds,$f);
         }
     }
+    $feeds=$newfeeds;
     // Create RSS
     $root = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/';
     $rss = new SimpleXMLElement('<rss><channel><title>RSS Merger</title><description>A PHP tool to merge multiple RSS streams into one output.</description><link>' . $root . '</link></channel></rss>');
