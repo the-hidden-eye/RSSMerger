@@ -63,12 +63,12 @@ if(isset($_GET['feed'])) {
     // id index exists
     $feedtarget=$_GET['feed'];
 }
-$runtime_log["1init"]= (microtime(true) - $time_start);
+$runtime_log["1init"]= (microtime(true) - $time_start)/1000;
 $rawxml=fgc_ttl($feedtarget,3600);
-$runtime_log["2load"]= (microtime(true) - $time_start);
+$runtime_log["2load"]= (microtime(true) - $time_start)/1000;
 //$dom->loadHTML($rawhtml);
 $doc->loadXML($rawxml);
-$runtime_log["3parse"]= (microtime(true) - $time_start);
+$runtime_log["3parse"]= (microtime(true) - $time_start)/1000;
 
 // Initialize empty array
 $arrFeeds = array();
@@ -241,17 +241,22 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 }
 // Output
 //print_r($arrFeeds);
-$runtime_log["4process"]= (microtime(true) - $time_start);
+$runtime_log["4process"]= (microtime(true) - $time_start)/1000;
 $feedtitle=xmlencode($feedtitle);
 header( "Content-type: text/xml; charset=UTF-8");
 header( "X-Items-Fetched: ".$fetched);
 header( "X-Items-Cached: ".$item_cache_hit);
+if($cache_path==$_SERVER['DOCUMENT_ROOT']."../.cache/") {
+    header( "X-Items-Cachepath: webroot");
+} else {
+    header( "X-Items-Cachepath: default");
+}
 header( "X-Feed-Target: ".$feedtarget);
 $xfsrc="int";
 if(isset($_GET["feed"])) {
     $xfsrc="get";
 }
-$runtime_log["send"]= (microtime(true) - $time_start);
+$runtime_log["send"]= (microtime(true) - $time_start)/1000;
 $runtimemsg="";
 foreach($runtime_log as $key => $val) {
     $runtimemsg=$runtimemsg." ".$key."=".$val."|";
