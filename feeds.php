@@ -210,15 +210,19 @@ try {
     $rss->addAttribute('version', '2.0');
     //var_dump($feeds);
     $sentlinks=array();
+    $senttitles=array();
     foreach ($feeds as $feed) {
         $myurl="";
         //var_dump($feed);
         $myurl=(string) $feed->link ;
         //var_dump($feed->attributes());
         //echo $myurl;
-        if(!in_array($myurl,$sentlinks)) {
+        $mytitle=(string) $feed->link ;
+        if(!in_array($myurl,$sentlinks) && !in_array($mytitle,$senttitles)) {
             sxml_append($rss->channel, $feed);
             array_push($sentlinks,$myurl);
+            array_push($senttitles,$mytitle);
+
         }
     }
 //    // Display
