@@ -40,26 +40,32 @@ return str_replace(
 function fgc_ttl($url,$cachetime,$cachepath) {
     $sum=md5($url);
     $cache_path=$cachepath;
-
     $cache_file = $cache_path . $sum.".cache" ;
+
+    $hdrmsg="";
+
+    $hdrmsg=$cache_file;
+
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
     }
     $filefound="no";
     if (file_exists($cache_file)) { $filefound="yes" ; }
-    header( "X-FGC-Found-".$sum.": ".$filefound);
+    $hdrmsg=$hdrmsg." found :".$filefound;
     if (file_exists($cache_file)) {
         $parsedfile=json_decode(file_get_contents($cache_file), true);
         $timediff=(microtime(true) - $parsedfile["time"]) /1000 ;
-        header( "X-FGC-Time-".$sum.": ".$timediff." / ".$cachetime);
+        $hdrmsg==$hdrmsg." time :".$filefound;
         if(  $timediff  > $cachetime  ) {
         //if(time() - filemtime($cache_file) > $cachetime) {
-            header( "X-FGC-".$sum.": expired");
+        //$hdrmsg=$hdrmsg." expired :".$cache_file . $timediff ." / ".$cachetime;
+        $hdrmsg=$hdrmsg." expired :". $timediff ." / ".$cachetime;
             $cache=file_get_contents($url);
             $cacheobj=array();$cacheobj["time"]=microtime(true) ;$cacheobj["fgc"]=base64_encode($cache) ;
             file_put_contents($cache_file, json_encode($cacheobj));
         } else {
-            header( "X-FGC-".$sum.": cached");
+            //$hdrmsg=$hdrmsg." cached :".$cache_file;
+            $hdrmsg=$hdrmsg." cached ";
             //$cache = file_get_contents($cache_file);
             $cache=base64_decode($parsedfile["fgc"]);
         }
@@ -67,8 +73,11 @@ function fgc_ttl($url,$cachetime,$cachepath) {
         $cache=file_get_contents($url);
         $cacheobj=array();$cacheobj["time"]=microtime(true) ;$cacheobj["fgc"]=base64_encode($cache) ;
         file_put_contents($cache_file, json_encode($cacheobj));
-        header( "X-FGC-".$sum.": fetched ".$cache_file);
+        //$hdrmsg=$hdrmsg." fetched :".$cache_file;
+        $hdrmsg=$hdrmsg." fetched ";
     }
+    header( "X-FGC-".$sum.": ".$hdrmsg);
+
     return $cache;
 }
 
@@ -195,7 +204,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         if(!in_array($imgurl,$sentimgs)){
            $sndline=$sndline.$snipdom->saveXML($par);
            array_push($sentimgs,$imgurl);
-        }
+           }
         }
         foreach($snipdom->getElementsByTagName('picture') as $par) {
             $longString = $par->$srcset;
@@ -206,7 +215,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
                $sndline=$sndline.$snipdom->saveXML($par);
                array_push($sentimgs,$imgurl);
             }
-            }
+        }
         //echo $sndline;
     }
     //heading
@@ -260,8 +269,10 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         'addxml' => $rawaddxml
 	);
     file_put_contents($item_cache_file, json_encode($itemRSS));
-	array_push($arrFeeds, $itemRSS);
-  } // end maxfetch
+    array_push($arrFeeds, $itemRSS);
+    } // end maxfetch
+
+
 } // end array_feeds
 
 }
