@@ -103,7 +103,8 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     }
     $mydesc=str_replace('="/static','="https://lotta-magazin.de/static',$mydesc);
     $mydesc=str_replace(',/static',',https://lotta-magazin.de/static',$mydesc);
-
+    $mydesc=str_replace('</body>','',$mydesc);
+    $mydesc=str_replace('<body>','',$mydesc);
 
 	$itemRSS = array (
 		'title' => $node->getElementsByTagName('title')->item(0)->nodeValue,
