@@ -135,8 +135,8 @@ if(!($feedgene=="")) {
 foreach($arrFeeds as $sendarr) {
   $title=$sendarr["title"];
   $link=$sendarr["link"];
-  $description=$sendarr["description"];
-  $pdate=$sendarr["pubDate"];
+  $description=$sendarr["desc"];
+  $pdate=$sendarr["date"];
 
   echo "<item>
   <title>$title</title>
