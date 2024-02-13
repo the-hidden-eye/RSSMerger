@@ -3,7 +3,7 @@ function fgc($url) {
     $cache_path="cache/";
     $cache_file = $cache_path . md5($url);
     if (!file_exists($cache_path)) { 
-        mkdir($file_cache_pathpath, 0777, true); 
+        mkdir($file_cache_path, 0777, true); 
     } 
     if (file_exists($cache_file)) {
         if(time() - filemtime($cache_file) > 86400) {
