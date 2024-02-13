@@ -1,3 +1,4 @@
+<?php
 # Check for url parameter, and prevent file transfer
 if (isset($_GET['url']) and preg_match('#^https?://#', $_GET['url']) === 1) {
 	$url = $_GET['url'];
