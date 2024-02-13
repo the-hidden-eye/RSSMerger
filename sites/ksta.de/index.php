@@ -54,18 +54,22 @@ function fgc_ttl($url,$cachetime) {
         mkdir($cache_path, 0777, true); 
     }
     if (file_exists($cache_file)) {
-        if(time() - filemtime($cache_file) > $cachetime) {
+        $parsedfile=json_decode(file_get_contents($cache_file))
+        if( ((microtime(true) - $parsedfile["time"]) /1000 )  > $cachetime  ) {
+        //if(time() - filemtime($cache_file) > $cachetime) {
             header( "X-FGC-".$sum.": expired");
-            $cache = file_get_contents($url);
-            file_put_contents($cache_file, $cache);
+            $cache=file_get_contents($url);
+            $cacheobj=array();$cacheobj["time"]=microtime(true) ;$cacheobj["fgc"]=base64_encode($cache) ;
+            file_put_contents($cache_file, json_encode($cacheobj));
         } else {
             header( "X-FGC-".$sum.": cached");
-            $cache = file_get_contents($cache_file);
+            //$cache = file_get_contents($cache_file);
+            $cache=base64_decode($parsedfile["fgc"]);
         }
     } else {
         header( "X-FGC-".$sum.": nocache");
-        $cache = file_get_contents($url);
-        file_put_contents($cache_file, $cache);
+        cacheobj=array();$cacheobj["time"]=microtime(true) ;$cacheobj["fgc"]=base64_encode(file_get_contents($url)) ;
+        file_put_contents($cache_file, json_encode($cacheobj));
     }
     return $cache;
 }
