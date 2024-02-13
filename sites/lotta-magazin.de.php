@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
 function fgc($url) {
     $cache_path="cache/";
     $cache_file = $cache_path . md5($url);
