@@ -1,6 +1,6 @@
 <?php
 
-
+$cache_time=1666;
 // Starts with util function
 function startsWith($haystack, $needle)
 {
