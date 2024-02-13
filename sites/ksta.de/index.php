@@ -18,7 +18,7 @@ function fgc($url) {
     } 
     if (file_exists($cache_file)) {
         if(time() - filemtime($cache_file) > 864000) {
-            $cache = file_get_contents($url);
+            $cache = file_get_contentts($url);
             file_put_contents($cache_file, $cache);
         } else {
             $cache = file_get_contents($cache_file);
@@ -238,6 +238,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 //print_r($arrFeeds);
 
 $feedtitle=xmlencode($feedtitle);
+$feedlink=$feedlink."?fromfeed=".$_GET['feed']
 header( "Content-type: text/xml; charset=UTF-8");
 //header('Content-Type: application/rss+xml; charset=UTF-8');
 echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
