@@ -142,8 +142,16 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         }
     $par = $dom->getElementsByTagName('picture')->item(0);
     $sndline="";
+    $sentimgs=array();
+
     foreach($dom->getElementsByTagName('picture') as $par) {
+        $longString = $par->$srcset;
+        $pics = explode(",", $longString);
+        $imgurl=$pics[0];
+        if(!in_array($imgurl)){
         $sndline=$sndline.$dom->saveXML($par);
+        array_push($sentimgs,$imgurl);
+        }
     }
     $par = $dom->getElementsByTagName('title')->item(0);
     $sndline=$sndline."<br>".$par->textContent."<h1><br>";
