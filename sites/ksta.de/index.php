@@ -4,7 +4,7 @@ $runtime_log=array();
 
 $cache_path="../.cache/";
 if(isset($_SERVER['DOCUMENT_ROOT'] )) {
-    $cache_path=$_SERVER['DOCUMENT_ROOT']."../.cache/";
+    $cache_path=$_SERVER['DOCUMENT_ROOT']."/.cache/";
 }
 
 if (!file_exists($cache_path)) { 
@@ -34,7 +34,7 @@ return str_replace(
 function fgc_ttl($url,$cachetime) {
     $cache_path="../.cache/";
     if(isset($_SERVER['DOCUMENT_ROOT'] )) {
-        $cache_path=$_SERVER['DOCUMENT_ROOT']."../.cache/";
+        $cache_path=$_SERVER['DOCUMENT_ROOT']."/.cache/";
     }
     $cache_file = $cache_path . md5($url).".cache";
     if (!file_exists($cache_path)) { 
