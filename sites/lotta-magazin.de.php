@@ -45,6 +45,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     $rawhtml=fgc($node->getElementsByTagName('link')->item(0)->nodeValue);
     //$dom->loadHTML($rawhtml);
     $dom->loadHTML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+
     libxml_use_internal_errors(false);
     try {
         $mydate=$node->getElementsByTagName('pubDate')->item(0)->nodeValue;
@@ -57,13 +58,12 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         //$div = $div->item(0);
         $div=$div->item(0);
         //echo $dom->saveXML($div);
-        $newdom = new DOMDocument;
+        $newdom = new DOMDocument;     
         $newdom->loadHTML($dom->saveXML($div));
         $par = $dom->getElementsByTagName('p')->item(0);
         $returndate=$dom->saveXML($par);
         $returndate=str_replace('<p>','',$returndate);
         $returndate=str_replace('</p>','',$returndate);
-        
         $returndate=date("D, d M Y H:i:s T", strtotime($returndate));
         //echo $returndate;
         $mydate=$returndate;
@@ -86,7 +86,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $div=$div->item(0);
         //echo $dom->saveXML($div);
         $newdom = new DOMDocument;
-        $newdom->loadHTML($dom->saveXML($div));
+        $newdom->loadHTML(mb_substr($dom->saveXML($div), 6, -7, "UTF-8"););
         $xpath = new DOMXPath($newdom);
         $removeclass="column-right";
         $hideclasses=array("header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet');
