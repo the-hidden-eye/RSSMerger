@@ -127,14 +127,22 @@ function handle_feed($feed,$myttl,$cachepath)
     // Done
     return $feed_content->xpath('/rss//item');
 }
-$feednames="";
+
 $myttl="";
+$feedtitle="";
+$feeddesc="";
 // Get feeds for URI
 try {
+    
     $feeds = [];
     if (isset($_GET['feed'])) {
         if (is_array($_GET['feed'])) {
             foreach ($_GET['feed'] as $f) {
+                simplexml_load_string(fgc_ttl($f,$cachetime,$cachepath));
+                $ltitle = $xml->channel->title;
+                $feedtitle=$feedtitle." ".$ltitle;
+                $ldescription = $xml->channel->description;
+                $feeddesc=$feeddesc." ".$ldescription;
                 $feeds[] = handle_feed($f,$myttl,$cache_path);
             }
         } else {
@@ -181,9 +189,11 @@ try {
     $feeds=$newfeeds;
     // Create RSS
     $root = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/';
-    $mytitle="RSS Merger";
-    $feeddesc="A PHP tool to merge multiple RSS streams into one output.";
-    $rss = new SimpleXMLElement('<rss><channel><title>'.$mytitle.'</title><description>'.$feeddesc.'</description><link>' . $root . '</link></channel></rss>');
+    
+    if($feedtitle=="") { $feedtitle="RSS Merger"; }
+
+    if($feeddesc=="") { $feeddesc="A PHP tool to merge multiple RSS streams into one output."; }
+    $rss = new SimpleXMLElement('<rss><channel><title>'.$feedtitle.'</title><description>'.$feeddesc.'</description><link>' . $root . '</link></channel></rss>');
     $rss->addAttribute('version', '2.0');
     foreach ($feeds as $feed) {
         sxml_append($rss->channel, $feed);
