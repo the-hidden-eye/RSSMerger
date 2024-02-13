@@ -97,8 +97,9 @@ $feedgene=$doc->getElementsByTagName('generator')->item(0)->nodeValue;
 $feedlang=$doc->getElementsByTagName('language')->item(0)->nodeValue;
 
 // Get a list of all the elements with the name 'item'
+$sentlinks=array();
+
 foreach ($doc->getElementsByTagName('item') as $node) {
-  if($fetched < $maxfetch ) {
     $sum=(md5($node->getElementsByTagName('link')->item(0)->nodeValue));
     $item_cache_file = $cache_path . $sum.".json";
     if(file_exists($item_cache_file)) {
@@ -108,6 +109,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $itemRSS = json_decode($string, true);
         $item_cache_hit=$item_cache_hit+1;
     } else {
+        if($fetched < $maxfetch ) {
         header( "X-FGC-".$sum.": json-fetch: ".$item_cache_file);
     $mydesc="";
     $mydate="";
@@ -258,9 +260,10 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         'addxml' => $rawaddxml
 	);
     file_put_contents($item_cache_file, json_encode($itemRSS));
-    }
 	array_push($arrFeeds, $itemRSS);
-  }
+  } // end maxfetch
+} // end array_feeds
+
 }
 // Output
 //print_r($arrFeeds);
