@@ -113,6 +113,27 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     //    $body = $newdom->documentElement->lastChild;
     //    $mydesc=$newdom->saveHTML($body);
     //}
+    if($mydesc=="") {
+    $classname="article-container";
+    libxml_use_internal_errors(true);
+    $dom = new DOMDocument;
+    //$dom->loadHTMLFile('https://lotta-magazin.de/ausgabe/92/haftstrafen-fur-familie-frankenbach/');
+    //$rawhtml=file_get_contents('https://lotta-magazin.de/ausgabe/92/haftstrafen-fur-familie-frankenbach/');
+    $dom->loadHTML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+    
+    libxml_use_internal_errors(false);
+    $xpath = new DOMXPath($dom);
+    //$par = $dom->getElementsByTagName('picture')->item(0);
+    $sndline="";
+    foreach($dom->getElementsByTagName('picture') as $par) {
+        $sndline=$sndline.$dom->saveXML($par);
+    }
+    $par = $dom->getElementsByTagName('title')->item(0);
+    $sndline=$sndline."<br>".$par->textContent."<h1><br>";
+    $classname="article-meta";
+    $div = $xpath->query("//*[contains(@class, '$classname')]")->item(0);
+    $mydesc=$sendline=$sndline.$dom->saveXML($div)." <br>";
+    }
     $mydesc=str_replace('="/static','="https://lotta-magazin.de/static',$mydesc);
     $mydesc=str_replace(',/static',',https://lotta-magazin.de/static',$mydesc);
     $mydesc=str_replace('</body>','',$mydesc);

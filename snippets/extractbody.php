@@ -1,10 +1,5 @@
 <?php
 
-
-
-
-
-
 $classname="article-container";
 libxml_use_internal_errors(true);
 $dom = new DOMDocument;
