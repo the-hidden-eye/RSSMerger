@@ -54,7 +54,7 @@ function fgc_ttl($url,$cachetime) {
         mkdir($cache_path, 0777, true); 
     }
     if (file_exists($cache_file)) {
-        $parsedfile=json_decode(file_get_contents($cache_file));
+        $parsedfile=json_decode(file_get_contents($cache_file),0);
         if( ((microtime(true) - $parsedfile["time"]) /1000 )  > $cachetime  ) {
         //if(time() - filemtime($cache_file) > $cachetime) {
             header( "X-FGC-".$sum.": expired");
