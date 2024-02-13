@@ -187,43 +187,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     //    array_push($sentimgs,$imgurl);
     //    }
     //}
-    
-    $classname="current-image";
-    foreach($xpath->query("//*[contains(@class, '$classname')]") as $par) {
-        //$newsnip=$domElement->ownerDocument->saveHTML($par);
-        $rawsnip=$dom->saveHTML($par);
-        //echo "$rawsnip";
-        $snipdom = new DOMDocument;
-        $snipdom->loadHTML(mb_encode_numericentity($rawsnip, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
-        foreach($snipdom->getElementsByTagName('img') as $par) {
-        $longString = $par->$srcset;
-        //echo $longString;
-        $singlesrc = $par->$src;
-        $pics = explode(",", $longString);
-        $imgurl=$pics[0];
-        if(!in_array($imgurl,$sentimgs)){
-           $sndline=$sndline.$snipdom->saveXML($par);
-           array_push($sentimgs,$imgurl);
-           }
-        }
-        if(empty($sentimgs)) {
-            foreach($snipdom->getElementsByTagName('picture') as $par) {
-                $longString = $par->$srcset;
-                //echo $longString;
-                $pics = explode(",", $longString);
-                $imgurl=$pics[0];
-                if(!in_array($imgurl,$sentimgs)){
-                   $sndline=$sndline.$snipdom->saveXML($par);
-                   array_push($sentimgs,$imgurl);
-                }
-            }
-        }
 
-        //echo $sndline;
-    }
-    //heading
-    $par = $dom->getElementsByTagName('title')->item(0);
-    $sndline=$sndline."<br>".$par->textContent."<h1><br>";
     ///////////////////////////////////
     //intro
 
@@ -252,6 +216,48 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         //echo $dom->saveXML($div)." <br>";
      }
     //echo "$sndline\r\n";
+ ///////////////////////// image
+     if( !strstr($sndline,"<img") && !strstr($sndline,"<picture")){
+        //append picture if not found in body
+        $classname="current-image";
+        foreach($xpath->query("//*[contains(@class, '$classname')]") as $par) {
+            //$newsnip=$domElement->ownerDocument->saveHTML($par);
+            $rawsnip=$dom->saveHTML($par);
+            //echo "$rawsnip";
+            $snipdom = new DOMDocument;
+            $snipdom->loadHTML(mb_encode_numericentity($rawsnip, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+            foreach($snipdom->getElementsByTagName('img') as $par) {
+            $longString = $par->$srcset;
+            //echo $longString;
+            $singlesrc = $par->$src;
+            $pics = explode(",", $longString);
+            $imgurl=$pics[0];
+            if(!in_array($imgurl,$sentimgs)){
+               $sndline=$sndline.$snipdom->saveXML($par);
+               array_push($sentimgs,$imgurl);
+               }
+            }
+            if(empty($sentimgs)) {
+                foreach($snipdom->getElementsByTagName('picture') as $par) {
+                    $longString = $par->$srcset;
+                    //echo $longString;
+                    $pics = explode(",", $longString);
+                    $imgurl=$pics[0];
+                    if(!in_array($imgurl,$sentimgs)){
+                       $sndline=$sndline.$snipdom->saveXML($par);
+                       array_push($sentimgs,$imgurl);
+                    }
+                }
+            }
+
+     }
+ 
+
+     //echo $sndline;
+ }
+ //heading
+ $par = $dom->getElementsByTagName('title')->item(0);
+ $sndline=$sndline."<br>".$par->textContent."<h1><br>";
     $mydesc=$sndline;
     } // end nodesc
     //$mydesc=str_replace('="/static','="https://lotta-magazin.de/static',$mydesc);
