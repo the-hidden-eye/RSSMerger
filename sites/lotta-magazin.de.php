@@ -123,6 +123,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     
     libxml_use_internal_errors(false);
     $xpath = new DOMXPath($dom);
+    $hideclasses=array("header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet');
     foreach($hideclasses as $removeclass) {
         foreach($xpath->query("//*[contains(@class, '$removeclass')]") as $e ) {
             // Delete this node
