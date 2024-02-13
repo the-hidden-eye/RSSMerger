@@ -12,7 +12,7 @@ if (!file_exists($cache_path)) {
 } 
 
 error_reporting(E_ERROR | E_PARSE);
-$maxfetch=23;
+$maxfetch=15;
 if(isset($_GET['maxfetch']) && is_int($_GET['maxfetch'])) {
     // id index exists
     $feedtarget=$_GET['maxfetch'];
@@ -39,7 +39,7 @@ function fgc_ttl($url,$cachetime) {
     $cache_file = $cache_path . md5($url).".cache";
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
-    } 
+    }
     if (file_exists($cache_file)) {
         if(time() - filemtime($cache_file) > $cachetime) {
             $cache = file_get_contents($url);
