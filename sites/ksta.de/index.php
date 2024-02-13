@@ -2,10 +2,16 @@
 $time_start = microtime(true);
 $runtime_log=array();
 
-$cache_path="../.cache/";
+
 if(isset($_SERVER['DOCUMENT_ROOT'] )) {
     $cache_path=$_SERVER['DOCUMENT_ROOT']."/.cache/";
-}
+    if (!file_exists($cache_path)) { 
+        mkdir($cache_path, 0777, true); 
+        if (!file_exists($cache_path)) { 
+            $cache_path="../.cache/";
+        }
+    }
+} else { $cache_path="../.cache/"; }
 
 if (!file_exists($cache_path)) { 
     mkdir($cache_path, 0777, true); 
@@ -31,11 +37,18 @@ return str_replace(
 }
 
 function fgc_ttl($url,$cachetime) {
-    $cache_path="../.cache/";
+    
     $sum=md5($url);
     if(isset($_SERVER['DOCUMENT_ROOT'] )) {
         $cache_path=$_SERVER['DOCUMENT_ROOT']."/.cache/";
-    }
+        if (!file_exists($cache_path)) { 
+            mkdir($cache_path, 0777, true); 
+            if (!file_exists($cache_path)) { 
+                $cache_path="../.cache/";
+            }
+        }
+    } else { $cache_path="../.cache/"; }
+
     $cache_file = $cache_path . $sum.".cache";
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
