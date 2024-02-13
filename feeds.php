@@ -215,7 +215,7 @@ try {
         //var_dump($feed);
         $myurl=(string) $feed->link ;
         //var_dump($feed->attributes());
-        echo $myurl;
+        //echo $myurl;
         if(!in_array($myurl,$sentlinks)) {
             sxml_append($rss->channel, $feed);
             array_push($sentlinks,$myurl);
