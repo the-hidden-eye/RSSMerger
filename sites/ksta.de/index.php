@@ -32,7 +32,7 @@ return str_replace(
 
 function fgc_ttl($url,$cachetime) {
     $cache_path="../.cache/";
-    $sum=md5($url)
+    $sum=md5($url);
     if(isset($_SERVER['DOCUMENT_ROOT'] )) {
         $cache_path=$_SERVER['DOCUMENT_ROOT']."/.cache/";
     }
