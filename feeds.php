@@ -146,12 +146,25 @@ try {
                 $feeds[] = handle_feed($f,$myttl,$cache_path);
             }
         } else {
-            $feeds[] = handle_feed($_GET['feed'],$myttl,$cache_path);
+            $f=$_GET['feed'];
+            $feeds[] = handle_feed($f,$myttl,$cache_path);
+            simplexml_load_string(fgc_ttl($f,$cachetime,$cachepath));
+            $ltitle = $xml->channel->title;
+            $feedtitle=$feedtitle." ".$ltitle;
+            $ldescription = $xml->channel->description;
+            $feeddesc=$feeddesc." ".$ldescription;
+            $feeds[] = handle_feed($f,$myttl,$cache_path);
         }
     }
     if (isset($_GET['feeds'])) {
         if (is_array($_GET['feeds'])) {
             foreach ($_GET['feeds'] as $f) {
+                $feeds[] = handle_feed($f,$myttl,$cache_path);
+                simplexml_load_string(fgc_ttl($f,$cachetime,$cachepath));
+                $ltitle = $xml->channel->title;
+                $feedtitle=$feedtitle." ".$ltitle;
+                $ldescription = $xml->channel->description;
+                $feeddesc=$feeddesc." ".$ldescription;
                 $feeds[] = handle_feed($f,$myttl,$cache_path);
             }
         } else {
