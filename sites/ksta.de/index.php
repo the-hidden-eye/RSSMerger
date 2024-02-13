@@ -11,27 +11,17 @@ function logheader($term,$msg) {
         header("X-".$term.": ".$msg);
     }
 }
-if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT']) ) {
-    $cache_path=$_SERVER['DOCUMENT_ROOT']."./.cache/";
-    if (!file_exists($cache_path)) { 
-        mkdir($cache_path, 0777, true); 
-        if (!file_exists($cache_path)) { 
-            $cache_path="../.cache/";
-        }
-    }
-} else { $cache_path="../.cache/"; }
 
-if (!file_exists($cache_path)) { 
-    mkdir($cache_path, 0777, true); 
-} 
-error_reporting(E_ERROR | E_PARSE);
+
 if (php_sapi_name() == "cli") {
     // In cli-mode
     $maxfetch=999;
 } else {
     // Not in cli-mode
     $maxfetch=15;
+    error_reporting(E_ERROR | E_PARSE);
 }
+
 if(isset($_GET['maxfetch']) && is_int($_GET['maxfetch'])) {
     // id index exists
     $maxfetch=$_GET['maxfetch'];
@@ -42,6 +32,8 @@ $item_cache_misss=0;
 $item_cache_hit=0;
 $feed_cache_miss=0;
 $feed_cache_hit=0;
+$fetched=0;
+
 function xmlencode($input) {
 return str_replace(
     ['<', '>','&'],
@@ -104,7 +96,19 @@ function fgc_ttl($url,$cachetime,$cachepath) {
 
     return $cache;
 }
+if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT']) ) {
+    $cache_path=$_SERVER['DOCUMENT_ROOT']."./.cache/";
+    if (!file_exists($cache_path)) { 
+        mkdir($cache_path, 0777, true); 
+        if (!file_exists($cache_path)) { 
+            $cache_path="../.cache/";
+        }
+    }
+} else { $cache_path="../.cache/"; }
 
+if (!file_exists($cache_path)) { 
+    mkdir($cache_path, 0777, true); 
+} 
 // Create a new DOMDocument object
 $doc = new DOMDocument();
 // Load the RSS file into the object
