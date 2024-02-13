@@ -96,8 +96,8 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         //    $e->parentNode->removeChild($e);
         //}
         //}
-        $hello=$newdom->documentElement->firstChild;
-        $hello->remove();
+        //$hello=$newdom->documentElement->firstChild;
+        //$hello->remove();
         $newhtml=mb_substr($newdom->saveXML(), 6, -7, "UTF-8");
         $newdom->loadHTML($newhtml);
 
