@@ -123,7 +123,13 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     
     libxml_use_internal_errors(false);
     $xpath = new DOMXPath($dom);
-    //$par = $dom->getElementsByTagName('picture')->item(0);
+    foreach($hideclasses as $removeclass) {
+        foreach($xpath->query("//*[contains(@class, '$removeclass')]") as $e ) {
+            // Delete this node
+            $e->parentNode->removeChild($e);
+        }
+        }
+    $par = $dom->getElementsByTagName('picture')->item(0);
     $sndline="";
     foreach($dom->getElementsByTagName('picture') as $par) {
         $sndline=$sndline.$dom->saveXML($par);
