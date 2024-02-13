@@ -3,10 +3,10 @@ function fgc($url) {
     $cache_path="cache/";
     $cache_file = $cache_path . md5($url);
     if (!file_exists($cache_path)) { 
-        mkdir($file_cache_path, 0777, true); 
+        mkdir($cache_path, 0777, true); 
     } 
     if (file_exists($cache_file)) {
-        if(time() - filemtime($cache_file) > 86400) {
+        if(time() - filemtime($cache_file) > 864000) {
             $cache = file_get_contents($url);
             file_put_contents($cache_file, $cache);
         } else {
@@ -27,6 +27,11 @@ $doc->load('https://lotta-magazin.de/rss.xml');
 
 // Initialize empty array
 $arrFeeds = array();
+$feedtitle=$doc->getElementsByTagName('title')->item(0)->nodeValue;
+$feeddesc=$doc->getElementsByTagName('description')->item(0)->nodeValue;
+$feedlink=$doc->getElementsByTagName('link')->item(0)->nodeValue;
+$feedgene=$doc->getElementsByTagName('generator')->item(0)->nodeValue;
+$feedlang=$doc->getElementsByTagName('language')->item(0)->nodeValue;
 
 // Get a list of all the elements with the name 'item'
 foreach ($doc->getElementsByTagName('item') as $node) {
@@ -108,4 +113,36 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 	array_push($arrFeeds, $itemRSS);
 }
 // Output
-print_r($arrFeeds);
+//print_r($arrFeeds);
+
+header( "Content-type: text/xml");
+ 
+echo "<?xml version='1.0' encoding='UTF-8'?>
+<rss version='2.0'>
+<channel>
+<title>$feedtitle</title>
+<link>$feedlink</link>
+<description>$feeddesc</description>";
+if($feedlang=="") {
+    echo "<language>$feedlang</language>";
+} else {
+    echo "<language>en-us</language>";
+}
+if(!($feedgene=="")) {
+    echo "<generator>$feedgene</generator>";
+}
+
+foreach($arrFeeds as $sendarr) {
+  $title=$sendarr["title"];
+  $link=$sendarr["link"];
+  $description=$sendarr["description"];
+  $pdate=$sendarr["pubDate"];
+
+  echo "<item>
+  <title>$title</title>
+  <link>$link</link>
+  <description>$description</description>
+  </item>";
+}
+
+echo "</channel></rss>";
