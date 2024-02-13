@@ -153,8 +153,8 @@ foreach($arrFeeds as $sendarr) {
   $description=$sendarr["desc"];
   $pdate=$sendarr["date"];
   echo "<item>\n
-  <title>$title</title>\r\n
-  <link>$link</link>\r\n
+  <title>htmlspecialchars($title)</title>\r\n
+  <link>htmlspecialchars($link)</link>\r\n
   <pubDate>$pdate</pubDate>\r\n
   <description><![CDATA[$description]]></description>
   </item>\r\n";
