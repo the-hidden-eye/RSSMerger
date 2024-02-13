@@ -10,7 +10,6 @@ if(isset($_SERVER['DOCUMENT_ROOT'] )) {
 if (!file_exists($cache_path)) { 
     mkdir($cache_path, 0777, true); 
 } 
-
 error_reporting(E_ERROR | E_PARSE);
 $maxfetch=15;
 if(isset($_GET['maxfetch']) && is_int($_GET['maxfetch'])) {
@@ -33,21 +32,25 @@ return str_replace(
 
 function fgc_ttl($url,$cachetime) {
     $cache_path="../.cache/";
+    $sum=md5($url)
     if(isset($_SERVER['DOCUMENT_ROOT'] )) {
         $cache_path=$_SERVER['DOCUMENT_ROOT']."/.cache/";
     }
-    $cache_file = $cache_path . md5($url).".cache";
+    $cache_file = $cache_path . $sum.".cache";
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
     }
     if (file_exists($cache_file)) {
         if(time() - filemtime($cache_file) > $cachetime) {
+            header( "X-FGC-".$sum.": expired");
             $cache = file_get_contents($url);
             file_put_contents($cache_file, $cache);
         } else {
+            header( "X-FGC-".$sum.": cached");
             $cache = file_get_contents($cache_file);
         }
     } else {
+        header( "X-FGC-".$sum.": nocache");
         $cache = file_get_contents($url);
         file_put_contents($cache_file, $cache);
     }
@@ -154,6 +157,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     //    array_push($sentimgs,$imgurl);
     //    }
     //}
+    
     $classname="current-image";
     foreach($xpath->query("//*[contains(@class, '$classname')]") as $par) {
         //$newsnip=$domElement->ownerDocument->saveHTML($par);
