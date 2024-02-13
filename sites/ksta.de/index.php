@@ -20,7 +20,7 @@ error_reporting(E_ERROR | E_PARSE);
 $maxfetch=15;
 if(isset($_GET['maxfetch']) && is_int($_GET['maxfetch'])) {
     // id index exists
-    $feedtarget=$_GET['maxfetch'];
+    $maxfetch=$_GET['maxfetch'];
 
 }
 $item_cache_misss=0;
