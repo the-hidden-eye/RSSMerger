@@ -219,13 +219,13 @@ try {
             array_push($sentlinks,$myurl);
         }
     }
-    // Display
-    header("Content-type: text/xml");
-    //echo $rss->asXML(); // Ugly print
-    $dom = dom_import_simplexml($rss)->ownerDocument; // Pretty print
-    $dom->formatOutput = true;
-    echo $dom->saveXML();
-    die();
+//    // Display
+//    header("Content-type: text/xml");
+//    //echo $rss->asXML(); // Ugly print
+//    $dom = dom_import_simplexml($rss)->ownerDocument; // Pretty print
+//    $dom->formatOutput = true;
+//    echo $dom->saveXML();
+//    die();
 } catch (Exception $e) {
     header("X-Soft-Fail: An error occurred whilst generating final RSS feed. ");
     //die("");
