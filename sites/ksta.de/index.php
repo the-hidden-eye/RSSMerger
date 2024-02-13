@@ -166,7 +166,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     
     libxml_use_internal_errors(false);
     $xpath = new DOMXPath($dom);
-    $hideclasses=array("dm-paywall-wrapper","ad_teaser_1","ad_teaser_2","ad_teaser_3","header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet',"trc_rbox_container","dm-taboola","dm-article-action-bar","kk_is_end");
+    $hideclasses=array("related-topic","dm-paywall-wrapper","ad_teaser_1","ad_teaser_2","ad_teaser_3","header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet',"trc_rbox_container","dm-taboola","dm-article-action-bar","kk_is_end");
     foreach($hideclasses as $removeclass) {
         foreach($xpath->query("//*[contains(@class, '$removeclass')]") as $e ) {
             // Delete this node
@@ -280,8 +280,6 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     file_put_contents($item_cache_file, json_encode($itemRSS));
     array_push($arrFeeds, $itemRSS);
     } // end maxfetch
-
-
 } // end array_feeds
 
 }
