@@ -28,23 +28,29 @@ function handle_feed($feed)
     }
 
     // Get contents
+    $sum=md5($feed);
     try {
         $feed_content = @file_get_contents($feed);
     } catch (Exception $e) {
-        header("HTTP/1.1 500 Internal Server Error");
-        die("An error occurred whilst fetching the feed '" . $feed . "'.");
+        //header("HTTP/1.1 500 Internal Server Error");
+        //die("An error occurred whilst fetching the feed '" . $feed . "'.");
+        header("X-Soft-Fail-Pre-".$sum.": An error occurred whilst fetching the feed '" . $feed . "'.")
+
     }
     if (!$feed_content) {
-        header("HTTP/1.1 500 Internal Server Error");
-        die("An invalid response was received when fetching the feed '" . $feed . "'");
+        //header("HTTP/1.1 500 Internal Server Error");
+        //die("An invalid response was received when fetching the feed '" . $feed . "'");
+        header("X-Soft-Fail-Empty-".$sum.": An error occurred whilst fetching the feed '" . $feed . "'.");
     }
 
     // Parse
     try {
         $feed_content = simplexml_load_string($feed_content);
     } catch (Exception $e) {
-        header("HTTP/1.1 500 Internal Server Error");
-        die("An error occurred whilst parsing the feed '" . $feed . "'.");
+        //header("HTTP/1.1 500 Internal Server Error");
+        //die("An error occurred whilst parsing the feed '" . $feed . "'.");
+       header("X-Soft-Fail-Final-".$sum.": An error occurred whilst parsing the feed '" . $feed . "'.");
+
     }
 
     // Done
@@ -78,8 +84,9 @@ try {
         die("Please provide RSS feeds to merge in URL. (Eg. ?feeds[]=https://blog.jetbrains.com/feed/&feeds[]=https://blog.jetbrains.com/idea/feed/)");
     }
 } catch (Exception $e) {
-    header("HTTP/1.1 500 Internal Server Error");
-    die("An error occurred whilst parsing feeds from request URL.");
+    //header("HTTP/1.1 500 Internal Server Error");
+    //die("An error occurred whilst parsing feeds from request URL.");
+    header("X-Soft-Fail-Final: An error occurred whilst parsing feeds from request URL.");
 }
 
 // Export the RSS feed
@@ -102,12 +109,13 @@ try {
     $feeds=$newfeeds;
     // Create RSS
     $root = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/';
+    mytitle="RSS Merger";
+    
     $rss = new SimpleXMLElement('<rss><channel><title>RSS Merger</title><description>A PHP tool to merge multiple RSS streams into one output.</description><link>' . $root . '</link></channel></rss>');
     $rss->addAttribute('version', '2.0');
     foreach ($feeds as $feed) {
         sxml_append($rss->channel, $feed);
     }
-
     // Display
     header("Content-type: text/xml");
     //echo $rss->asXML(); // Ugly print
@@ -115,10 +123,8 @@ try {
     $dom->formatOutput = true;
     echo $dom->saveXML();
     die();
-
 } catch (Exception $e) {
-    header("HTTP/1.1 500 Internal Server Error");
-    die("An error occurred whilst generating final RSS feed.");
+    header("X-Soft-Fail: An error occurred whilst generating final RSS feed. ");
+    //die("");
 }
-
 ?>
