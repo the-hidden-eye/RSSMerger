@@ -4,8 +4,8 @@ $maxfetch=23;
 function xmlencode($input) {
 
 return str_replace(
-    ['<', '>',],
-    ['&lt;', '&gt;',],
+    ['<', '>','&'],
+    ['&lt;', '&gt;' , '&amp;',],
     html_entity_decode($input)
 );  
 }
@@ -237,12 +237,13 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 // Output
 //print_r($arrFeeds);
 
+$feedtitle=xmlencode($feedtitle)
 header( "Content-type: text/xml; charset=UTF-8");
 //header('Content-Type: application/rss+xml; charset=UTF-8');
 echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
 <rss version='2.0'>\r\n
 <channel>\r\n
-<title>xmlencode($feedtitle)</title>\r\n
+<title>$feedtitle</title>\r\n
 <link>$feedlink</link>\r\n
 <description>$feeddesc</description>";
 if($feedlang=="") {
@@ -260,11 +261,11 @@ foreach($arrFeeds as $sendarr) {
   $description=$sendarr["desc"];
   $pdate=$sendarr["date"];
   echo "<item>\n
-  <title>".$title."</title>\r\n
+  <title>".xmlencode($title)."</title>\r\n
   <link>".htmlspecialchars($link)."</link>\r\n
   <pubDate>$pdate</pubDate>\r\n
   <description><![CDATA[$description]]></description>\r\n
-  ".$rawaddxml."
+  ".xmlencode($rawaddxml)."
 </item>\r\n";
 }
 echo "</channel>\r\n</rss>";
