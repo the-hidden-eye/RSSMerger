@@ -89,7 +89,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $newdom->loadHTML($dom->saveXML($div));
         $xpath = new DOMXPath($newdom);
         $removeclass="column-right";
-        $hideclasses=array('column-right',"is-sidebar-meta",'u-hide-tablet');
+        $hideclasses=array("header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet');
         foreach($hideclasses as $removeclass) {
         foreach($xpath->query("//*[contains(@class, '$removeclass')]") as $e ) {
             // Delete this node
