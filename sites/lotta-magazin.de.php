@@ -118,11 +118,11 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 
 header( "Content-type: text/xml");
  
-echo "<?xml version='1.0' encoding='UTF-8'?>
-<rss version='2.0'>
-<channel>
-<title>$feedtitle</title>
-<link>$feedlink</link>
+echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
+<rss version='2.0'>\r\n
+<channel>\r\n
+<title>$feedtitle</title>\r\n
+<link>$feedlink</link>\r\n
 <description>$feeddesc</description>";
 if($feedlang=="") {
     echo "<language>$feedlang</language>";
@@ -139,11 +139,11 @@ foreach($arrFeeds as $sendarr) {
   $description=$sendarr["desc"];
   $pdate=$sendarr["date"];
 
-  echo "<item>
-  <title>$title</title>
-  <link>$link</link>
-  <description>$description</description>
-  </item>";
+  echo "<item>\r\n
+  <title>$title</title>\r\n
+  <link>$link</link>\r\n
+  <description>$description</description>\r\n
+  </item>\r\n";
 }
 
-echo "</channel></rss>";
+echo "</channel>\r\n</rss>";
