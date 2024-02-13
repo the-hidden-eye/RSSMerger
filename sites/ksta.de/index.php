@@ -36,27 +36,19 @@ return str_replace(
 );  
 }
 
-function fgc_ttl($url,$cachetime) {
-    
-    $sum=md5($url);
-    if(isset($_SERVER['DOCUMENT_ROOT'] )) {
-        $cache_path=$_SERVER['DOCUMENT_ROOT']."/.cache/";
-        if (!file_exists($cache_path)) { 
-            mkdir($cache_path, 0777, true); 
-            if (!file_exists($cache_path)) { 
-                $cache_path="../.cache/";
-            }
-        }
-    } else { $cache_path="../.cache/"; }
 
-    $cache_file = $cache_path . $sum.".cache";
+function fgc_ttl($url,$cachetime,$cachepath) {
+    $sum=md5($url);
+    $cache_path=$cachepath;
+
+    $cache_file = $cache_path . $sum.".cache" ;
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
     }
     if (file_exists($cache_file)) {
         $parsedfile=json_decode(file_get_contents($cache_file), true);
-        $timediff=(microtime(true) - $parsedfile["time"]) /1000 )
-        if( ( $timediff  > $cachetime  ) {
+        $timediff=(microtime(true) - $parsedfile["time"]) /1000 ;
+        if(  $timediff  > $cachetime  ) {
         //if(time() - filemtime($cache_file) > $cachetime) {
             header( "X-FGC-".$sum.": expired");
             $cache=file_get_contents($url);
@@ -86,7 +78,7 @@ if(isset($_GET['feed'])) {
     $feedtarget=$_GET['feed'];
 }
 $runtime_log["1init"]= (microtime(true) - $time_start)/1000;
-$rawxml=fgc_ttl($feedtarget,3600);
+$rawxml=fgc_ttl($feedtarget,3600,$cache_path);
 $runtime_log["2load"]= (microtime(true) - $time_start)/1000;
 //$dom->loadHTML($rawhtml);
 $doc->loadXML($rawxml);
@@ -120,7 +112,8 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $fetched=$fetched+1;
         $item_cache_hit=$item_cache_miss+1;
     }
-    $rawhtml=mb_convert_encoding(fgc_ttl($node->getElementsByTagName('link')->item(0)->nodeValue,86400), 'HTML-ENTITIES', "UTF-8");
+
+    $rawhtml=mb_convert_encoding(fgc_ttl($node->getElementsByTagName('link')->item(0)->nodeValue,86400,$cache_path), 'HTML-ENTITIES', "UTF-8");
     //$dom->loadHTML($rawhtml);
     $dom->loadXML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
     libxml_use_internal_errors(false);
