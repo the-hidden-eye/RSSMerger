@@ -78,7 +78,8 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     if($mydesc=="") {
         $classname="article-container";
         libxml_use_internal_errors(true);
-        $dom->loadHTML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+        //$dom->loadHTML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+        $dom->loadHTML($rawhtml);
         libxml_use_internal_errors(false);
         $xpath = new DOMXPath($dom);
         $div = $xpath->query("//*[contains(@class, '$classname')]");
