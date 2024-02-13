@@ -7,6 +7,14 @@ function startsWith($haystack, $needle)
     return (substr($haystack, 0, strlen($needle)) === $needle);
 }
 
+function xmlencode_notags($input) {
+    return str_replace(
+        ['&'],
+        ['&amp;',],
+        html_entity_decode($input)
+    );  
+    }
+
 // Append sml elements
 function sxml_append(SimpleXMLElement $to, SimpleXMLElement $from)
 {
@@ -206,7 +214,7 @@ try {
     if($feedtitle=="") { $feedtitle="RSS Merger"; }
 
     if($feeddesc=="") { $feeddesc="A PHP tool to merge multiple RSS streams into one output."; }
-    $rss = new SimpleXMLElement('<rss><channel><title>'.$feedtitle.'</title><description>'.$feeddesc.'</description><link>' . $root . '</link></channel></rss>');
+    $rss = new SimpleXMLElement('<rss><channel><title>'.xmlencode_notags($feedtitle).'</title><description>'.xmlencode_notags($feeddesc).'</description><link>' . $root . '</link></channel></rss>');
     $rss->addAttribute('version', '2.0');
     //var_dump($feeds);
     $sentlinks=array();
