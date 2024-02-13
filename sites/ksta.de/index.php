@@ -52,10 +52,10 @@ function xmlencode_notags($input) {
 
 function fgc_ttl($url,$cachetime,$cachepath) {
     $sum=md5($url);
+    $cache_path="./".$cachepath;
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
     }
-    $cache_path="./".$cachepath;
     $cache_file = $cache_path .'/'. $sum.".cache" ;
     $cache_data = $cache_path .'/'. $sum.".cache.data" ;
     $hdrmsg="";
