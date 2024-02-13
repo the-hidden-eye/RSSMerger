@@ -138,7 +138,7 @@ try {
     if (isset($_GET['feed'])) {
         if (is_array($_GET['feed'])) {
             foreach ($_GET['feed'] as $f) {
-                simplexml_load_string(fgc_ttl($f,$cache_time,$cachepath));
+                simplexml_load_string(fgc_ttl($f,$cache_time,$cache_path));
                 $ltitle = $xml->channel->title;
                 $feedtitle=$feedtitle." ".$ltitle;
                 $ldescription = $xml->channel->description;
@@ -148,7 +148,7 @@ try {
         } else {
             $f=$_GET['feed'];
             $feeds[] = handle_feed($f,$cache_time,$cache_path);
-            simplexml_load_string(fgc_ttl($f,$cache_time,$cachepath));
+            simplexml_load_string(fgc_ttl($f,$cache_time,$cache_path));
             $ltitle = $xml->channel->title;
             $feedtitle=$feedtitle." ".$ltitle;
             $ldescription = $xml->channel->description;
@@ -160,7 +160,7 @@ try {
         if (is_array($_GET['feeds'])) {
             foreach ($_GET['feeds'] as $f) {
                 $feeds[] = handle_feed($f,$cache_time,$cache_path);
-                simplexml_load_string(fgc_ttl($f,$cache_time,$cachepath));
+                simplexml_load_string(fgc_ttl($f,$cache_time,$cache_path));
                 $ltitle = $xml->channel->title;
                 $feedtitle=$feedtitle." ".$ltitle;
                 $ldescription = $xml->channel->description;
