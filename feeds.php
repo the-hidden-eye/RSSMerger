@@ -128,7 +128,7 @@ function handle_feed($feed,$myttl,$cachepath)
     return $feed_content->xpath('/rss//item');
 }
 $feednames="";
-
+$myttl="";
 // Get feeds for URI
 try {
     $feeds = [];
