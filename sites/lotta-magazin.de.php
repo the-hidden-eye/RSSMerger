@@ -102,7 +102,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $mydesc=$newdom->saveHTML($body);
     }
     $mydesc=str_replace('="/static','="https://lotta-magazin.de/static',$mydesc);
-    $mydesc=str_replace(',/static','=",https://lotta-magazin.de/static',$mydesc);
+    $mydesc=str_replace(',/static',',https://lotta-magazin.de/static',$mydesc);
 
 
 	$itemRSS = array (
