@@ -1,6 +1,11 @@
 <?php
 error_reporting(E_ERROR | E_PARSE);
 $maxfetch=23;
+$item_cache_misss=0;
+$item_cache_hit=0;
+$feed_cache_miss=0;
+$feed_cache_hit=0;
+
 function xmlencode($input) {
 
 return str_replace(
@@ -11,7 +16,7 @@ return str_replace(
 }
 
 function fgc($url) {
-    $cache_path="cache/";
+    $cache_path="../.cache/";
     $cache_file = $cache_path . md5($url);
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
@@ -30,7 +35,7 @@ function fgc($url) {
     return $cache;
 }
 function fgc_ttl($url,$cachetime) {
-    $cache_path="cache/";
+    $cache_path="../.cache/";
     $cache_file = $cache_path . md5($url);
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
@@ -71,19 +76,20 @@ $feedlink=$doc->getElementsByTagName('link')->item(0)->nodeValue;
 $feedgene=$doc->getElementsByTagName('generator')->item(0)->nodeValue;
 $feedlang=$doc->getElementsByTagName('language')->item(0)->nodeValue;
 
-if (!file_exists("cache/")) { 
+if (!file_exists("../.cache/")) { 
     mkdir($cache_path, 0777, true); 
 } 
 
 // Get a list of all the elements with the name 'item'
 foreach ($doc->getElementsByTagName('item') as $node) {
   if($fetched < $maxfetch ) {
-    $cache_file = "cache/" . md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json";
+    $cache_file = "../.cache/" . md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json";
 
     if(file_exists($cache_file)) {
         //we have a cached json
         $string = file_get_contents($cache_file); 
         $itemRSS = json_decode($string, true);
+        $item_cache_hit=$item_cache_hit+1;
     } else {
     $mydesc="";
     $mydate="";
@@ -91,8 +97,9 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     $dom = new DOMDocument;
     //$dom->loadHTMLFile($node->getElementsByTagName('link')->item(0)->nodeValue);
     //$rawhtml=file_get_contents($node->getElementsByTagName('link')->item(0)->nodeValue);
-    if (!file_exists("cache/". md5($node->getElementsByTagName('link')->item(0)->nodeValue))) { 
+    if (!file_exists("../.cache/". md5($node->getElementsByTagName('link')->item(0)->nodeValue))) { 
         $fetched=$fetched+1;
+        $item_cache_hit=$item_cache_miss+1;
     }
     $rawhtml=mb_convert_encoding(fgc($node->getElementsByTagName('link')->item(0)->nodeValue), 'HTML-ENTITIES', "UTF-8"); ;
     //$dom->loadHTML($rawhtml);
@@ -230,7 +237,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 		'date' => $mydate,
         'addxml' => $rawaddxml
 	);
-    file_put_contents("cache/".md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json", json_encode($itemRSS));
+    file_put_contents("../.cache/".md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json", json_encode($itemRSS));
     }
 	array_push($arrFeeds, $itemRSS);
   }
@@ -239,8 +246,15 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 //print_r($arrFeeds);
 
 $feedtitle=xmlencode($feedtitle);
-$feedlink=$feedtarget."/asd/".$feedlink."?fromfeed=".$_GET['feed'];
 header( "Content-type: text/xml; charset=UTF-8");
+header( "X-Items-Fetched: ".$fetched);
+header( "X-Items-Cached: ".$item_cache_hit);
+header( "X-Feed-Target: ".$feedtarget);
+$xfsrc="int";
+if(isset($_GET["feed"])) {
+    $xfsrc="get";
+}
+header( "X-Feed-source: text/xml; ");
 //header('Content-Type: application/rss+xml; charset=UTF-8');
 echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
 <rss version='2.0'>\r\n
