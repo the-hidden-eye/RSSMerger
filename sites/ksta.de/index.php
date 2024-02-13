@@ -55,7 +55,8 @@ function fgc_ttl($url,$cachetime) {
     }
     if (file_exists($cache_file)) {
         $parsedfile=json_decode(file_get_contents($cache_file), true);
-        if( ((microtime(true) - $parsedfile["time"]) /1000 )  > $cachetime  ) {
+        $timediff=(microtime(true) - $parsedfile["time"]) /1000 )
+        if( ( $timediff  > $cachetime  ) {
         //if(time() - filemtime($cache_file) > $cachetime) {
             header( "X-FGC-".$sum.": expired");
             $cache=file_get_contents($url);
@@ -67,10 +68,10 @@ function fgc_ttl($url,$cachetime) {
             $cache=base64_decode($parsedfile["fgc"]);
         }
     } else {
-        header( "X-FGC-".$sum.": fetched");
         $cache=file_get_contents($url);
         $cacheobj=array();$cacheobj["time"]=microtime(true) ;$cacheobj["fgc"]=base64_encode($cache) ;
         file_put_contents($cache_file, json_encode($cacheobj));
+        header( "X-FGC-".$sum.": fetched ".$cache_file);
     }
     return $cache;
 }
