@@ -48,6 +48,7 @@ function fgc_ttl($url,$cachetime,$cachepath) {
     if (file_exists($cache_file)) {
         $parsedfile=json_decode(file_get_contents($cache_file), true);
         $timediff=(microtime(true) - $parsedfile["time"]) /1000 ;
+        header( "X-FGC-Time-".$sum.": ".$timediff." / ".$cachetime);
         if(  $timediff  > $cachetime  ) {
         //if(time() - filemtime($cache_file) > $cachetime) {
             header( "X-FGC-".$sum.": expired");
