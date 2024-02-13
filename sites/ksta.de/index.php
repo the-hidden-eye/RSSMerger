@@ -96,13 +96,16 @@ $feedlang=$doc->getElementsByTagName('language')->item(0)->nodeValue;
 // Get a list of all the elements with the name 'item'
 foreach ($doc->getElementsByTagName('item') as $node) {
   if($fetched < $maxfetch ) {
-    $item_cache_file = $cache_path . md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json";
+    $sum=(md5($node->getElementsByTagName('link')->item(0)->nodeValue));
+    $item_cache_file = $cache_path . $sum.".json";
     if(file_exists($item_cache_file)) {
+        header( "X-FGC-".$sum.": json-cached: ".$item_cache_file);
         //we have a cached json
         $string = file_get_contents($item_cache_file); 
         $itemRSS = json_decode($string, true);
         $item_cache_hit=$item_cache_hit+1;
     } else {
+        header( "X-FGC-".$sum.": json-fetch: ".$item_cache_file);
     $mydesc="";
     $mydate="";
     libxml_use_internal_errors(true);
