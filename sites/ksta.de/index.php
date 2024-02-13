@@ -237,7 +237,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 // Output
 //print_r($arrFeeds);
 
-$feedtitle=xmlencode($feedtitle)
+$feedtitle=xmlencode($feedtitle);
 header( "Content-type: text/xml; charset=UTF-8");
 //header('Content-Type: application/rss+xml; charset=UTF-8');
 echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
