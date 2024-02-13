@@ -7,7 +7,7 @@ return str_replace(
     ['<', '>',],
     ['&lt;', '&gt;',],
     html_entity_decode($input)
-)
+);  
 }
 
 function fgc($url) {
