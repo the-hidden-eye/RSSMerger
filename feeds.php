@@ -208,9 +208,16 @@ try {
     if($feeddesc=="") { $feeddesc="A PHP tool to merge multiple RSS streams into one output."; }
     $rss = new SimpleXMLElement('<rss><channel><title>'.$feedtitle.'</title><description>'.$feeddesc.'</description><link>' . $root . '</link></channel></rss>');
     $rss->addAttribute('version', '2.0');
-    var_dump($feeds);
+    //var_dump($feeds);
+    $sentlinks=array();
     foreach ($feeds as $feed) {
-        sxml_append($rss->channel, $feed);
+        $myurl="";
+        $myurl=$feed->link->textContent;
+        echo $myurl;
+        if(!in_array($myurl)) {
+            sxml_append($rss->channel, $feed);
+            array_push($sentlinks,$myurl);
+        }
     }
     // Display
     header("Content-type: text/xml");
