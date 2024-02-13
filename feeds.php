@@ -212,6 +212,7 @@ try {
     $sentlinks=array();
     foreach ($feeds as $feed) {
         $myurl="";
+        var_dump($feed);
         $myurl=$feed->link->textContent;
         echo $myurl;
         if(!in_array($myurl,$sentlinks)) {
