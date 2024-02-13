@@ -43,7 +43,7 @@ if (!file_exists("cache/")) {
 // Get a list of all the elements with the name 'item'
 foreach ($doc->getElementsByTagName('item') as $node) {
   if($fetched < $maxfetch ) {
-    $cache_file = "cache/" . md5($url).".json";
+    $cache_file = "cache/" . md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json";
     if(file_exists($cache_file)) {
         //we have a cached json
         $string = file_get_contents($cache_file); 
@@ -171,7 +171,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 		'link' => $node->getElementsByTagName('link')->item(0)->nodeValue,
 		'date' => $mydate
 	);
-    file_put_contents("cache/".md5($url).".json", json_encode($itemRSS));
+    file_put_contents("cache/".md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json", json_encode($itemRSS));
     }
 	array_push($arrFeeds, $itemRSS);
   }
