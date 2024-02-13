@@ -79,6 +79,7 @@ if (!file_exists("cache/")) {
 foreach ($doc->getElementsByTagName('item') as $node) {
   if($fetched < $maxfetch ) {
     $cache_file = "cache/" . md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json";
+
     if(file_exists($cache_file)) {
         //we have a cached json
         $string = file_get_contents($cache_file); 
@@ -238,7 +239,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 //print_r($arrFeeds);
 
 $feedtitle=xmlencode($feedtitle);
-$feedlink=$feedlink."?fromfeed=".$_GET['feed'];
+$feedlink=$feedtarget."/asd/".$feedlink."?fromfeed=".$_GET['feed'];
 header( "Content-type: text/xml; charset=UTF-8");
 //header('Content-Type: application/rss+xml; charset=UTF-8');
 echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
