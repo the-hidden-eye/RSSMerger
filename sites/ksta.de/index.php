@@ -1,6 +1,14 @@
 <?php
 error_reporting(E_ERROR | E_PARSE);
 $maxfetch=23;
+function xmlencode($input) {
+
+return str_replace(
+    ['<', '>',],
+    ['&lt;', '&gt;',],
+    html_entity_decode($input)
+)
+}
 
 function fgc($url) {
     $cache_path="cache/";
@@ -229,11 +237,12 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 // Output
 //print_r($arrFeeds);
 
-header( "Content-type: text/xml");
+//header( "Content-type: text/xml");
+header('Content-Type: application/rss+xml; charset=UTF-8');
 echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
 <rss version='2.0'>\r\n
 <channel>\r\n
-<title>$feedtitle</title>\r\n
+<title>xmlencode($feedtitle)</title>\r\n
 <link>$feedlink</link>\r\n
 <description>$feeddesc</description>";
 if($feedlang=="") {
