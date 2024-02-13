@@ -1,11 +1,27 @@
 <?php
+$time_start = microtime(true);
+$runtime_log=array();
+
+$cache_path="../.cache/";
+if(isset($_SERVER['DOCUMENT_ROOT'] )) {
+    $cache_path=$_SERVER['DOCUMENT_ROOT']."../.cache/";
+}
+
+if (!file_exists($cache_path)) { 
+    mkdir($cache_path, 0777, true); 
+} 
+
 error_reporting(E_ERROR | E_PARSE);
 $maxfetch=23;
+if(isset($_GET['maxfetch']) && is_int($_GET['maxfetch'])) {
+    // id index exists
+    $feedtarget=$_GET['maxfetch'];
+
+}
 $item_cache_misss=0;
 $item_cache_hit=0;
 $feed_cache_miss=0;
 $feed_cache_hit=0;
-
 function xmlencode($input) {
 
 return str_replace(
@@ -15,28 +31,12 @@ return str_replace(
 );  
 }
 
-function fgc($url) {
-    $cache_path="../.cache/";
-    $cache_file = $cache_path . md5($url);
-    if (!file_exists($cache_path)) { 
-        mkdir($cache_path, 0777, true); 
-    } 
-    if (file_exists($cache_file)) {
-        if(time() - filemtime($cache_file) > 864000) {
-            $cache = file_get_contentts($url);
-            file_put_contents($cache_file, $cache);
-        } else {
-            $cache = file_get_contents($cache_file);
-        }
-    } else {
-        $cache = file_get_contents($url);
-        file_put_contents($cache_file, $cache);
-    }
-    return $cache;
-}
 function fgc_ttl($url,$cachetime) {
     $cache_path="../.cache/";
-    $cache_file = $cache_path . md5($url);
+    if(isset($_SERVER['DOCUMENT_ROOT'] )) {
+        $cache_path=$_SERVER['DOCUMENT_ROOT']."../.cache/";
+    }
+    $cache_file = $cache_path . md5($url).".cache";
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
     } 
@@ -63,10 +63,12 @@ if(isset($_GET['feed'])) {
     // id index exists
     $feedtarget=$_GET['feed'];
 }
-
-$rawxml=fgc_ttl("https://feed.ksta.de/feed/rss/kultur-medien/index.rss",3600);
+$runtime_log["1init"]= (microtime(true) - $time_start);
+$rawxml=fgc_ttl($feedtarget,3600);
+$runtime_log["2load"]= (microtime(true) - $time_start);
 //$dom->loadHTML($rawhtml);
 $doc->loadXML($rawxml);
+$runtime_log["3parse"]= (microtime(true) - $time_start);
 
 // Initialize empty array
 $arrFeeds = array();
@@ -76,18 +78,13 @@ $feedlink=$doc->getElementsByTagName('link')->item(0)->nodeValue;
 $feedgene=$doc->getElementsByTagName('generator')->item(0)->nodeValue;
 $feedlang=$doc->getElementsByTagName('language')->item(0)->nodeValue;
 
-if (!file_exists("../.cache/")) { 
-    mkdir($cache_path, 0777, true); 
-} 
-
 // Get a list of all the elements with the name 'item'
 foreach ($doc->getElementsByTagName('item') as $node) {
   if($fetched < $maxfetch ) {
-    $cache_file = "../.cache/" . md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json";
-
-    if(file_exists($cache_file)) {
+    $item_cache_file = $cache_path . md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json";
+    if(file_exists($item_cache_file)) {
         //we have a cached json
-        $string = file_get_contents($cache_file); 
+        $string = file_get_contents($item_cache_file); 
         $itemRSS = json_decode($string, true);
         $item_cache_hit=$item_cache_hit+1;
     } else {
@@ -97,11 +94,11 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     $dom = new DOMDocument;
     //$dom->loadHTMLFile($node->getElementsByTagName('link')->item(0)->nodeValue);
     //$rawhtml=file_get_contents($node->getElementsByTagName('link')->item(0)->nodeValue);
-    if (!file_exists("../.cache/". md5($node->getElementsByTagName('link')->item(0)->nodeValue))) { 
+    if (!file_exists($cache_path. md5($node->getElementsByTagName('link')->item(0)->nodeValue))) { 
         $fetched=$fetched+1;
         $item_cache_hit=$item_cache_miss+1;
     }
-    $rawhtml=mb_convert_encoding(fgc($node->getElementsByTagName('link')->item(0)->nodeValue), 'HTML-ENTITIES', "UTF-8"); ;
+    $rawhtml=mb_convert_encoding(fgc_ttl($node->getElementsByTagName('link')->item(0)->nodeValue,86400), 'HTML-ENTITIES', "UTF-8");
     //$dom->loadHTML($rawhtml);
     $dom->loadXML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
     libxml_use_internal_errors(false);
@@ -237,14 +234,14 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 		'date' => $mydate,
         'addxml' => $rawaddxml
 	);
-    file_put_contents("../.cache/".md5($node->getElementsByTagName('link')->item(0)->nodeValue).".json", json_encode($itemRSS));
+    file_put_contents($item_cache_file, json_encode($itemRSS));
     }
 	array_push($arrFeeds, $itemRSS);
   }
 }
 // Output
 //print_r($arrFeeds);
-
+$runtime_log["4process"]= (microtime(true) - $time_start);
 $feedtitle=xmlencode($feedtitle);
 header( "Content-type: text/xml; charset=UTF-8");
 header( "X-Items-Fetched: ".$fetched);
@@ -254,7 +251,14 @@ $xfsrc="int";
 if(isset($_GET["feed"])) {
     $xfsrc="get";
 }
-header( "X-Feed-source: text/xml; ");
+$runtime_log["send"]= (microtime(true) - $time_start);
+$runtimemsg="";
+foreach($runtime_log as $key => $val) {
+    $runtimemsg=$runtimemsg." ".$key."=".$val."|";
+}
+header( "X-Feed-Timing: ".$runtimemsg);
+
+
 //header('Content-Type: application/rss+xml; charset=UTF-8');
 echo "<?xml version='1.0' encoding='UTF-8'?>\r\n
 <rss version='2.0'>\r\n
