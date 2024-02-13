@@ -90,13 +90,14 @@ foreach ($doc->getElementsByTagName('item') as $node) {
         $xpath = new DOMXPath($newdom);
         $removeclass="column-right";
         $hideclasses=array("header__firstrow","navbar-item",'column-right',"is-sidebar-meta",'u-hide-tablet');
-        foreach($hideclasses as $removeclass) {
-        foreach($xpath->query("//*[contains(@class, '$removeclass')]") as $e ) {
-            // Delete this node
-            $e->parentNode->removeChild($e);
-        }
-        }
-        $newhtml=$newdom->saveXML();
+        //foreach($hideclasses as $removeclass) {
+        //foreach($xpath->query("//*[contains(@class, '$removeclass')]") as $e ) {
+        //    // Delete this node
+        //    $e->parentNode->removeChild($e);
+        //}
+        //}
+        
+        $newhtml=mb_substr($newdom->saveXML(), 6, -7, "UTF-8");;
         $newdom->loadHTML($newhtml);
         $body = $newdom->documentElement->lastChild;
         $mydesc=$newdom->saveHTML($body);
