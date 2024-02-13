@@ -34,8 +34,7 @@ function handle_feed($feed)
     } catch (Exception $e) {
         //header("HTTP/1.1 500 Internal Server Error");
         //die("An error occurred whilst fetching the feed '" . $feed . "'.");
-        header("X-Soft-Fail-Pre-".$sum.": An error occurred whilst fetching the feed '" . $feed . "'.")
-
+        header("X-Soft-Fail-Pre-".$sum.": An error occurred whilst fetching the feed '" . $feed . "'.");
     }
     if (!$feed_content) {
         //header("HTTP/1.1 500 Internal Server Error");
@@ -110,7 +109,7 @@ try {
     // Create RSS
     $root = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/';
     mytitle="RSS Merger";
-    
+
     $rss = new SimpleXMLElement('<rss><channel><title>RSS Merger</title><description>A PHP tool to merge multiple RSS streams into one output.</description><link>' . $root . '</link></channel></rss>');
     $rss->addAttribute('version', '2.0');
     foreach ($feeds as $feed) {
