@@ -36,9 +36,19 @@ $feedlink=$doc->getElementsByTagName('link')->item(0)->nodeValue;
 $feedgene=$doc->getElementsByTagName('generator')->item(0)->nodeValue;
 $feedlang=$doc->getElementsByTagName('language')->item(0)->nodeValue;
 
+if (!file_exists("cache/")) { 
+    mkdir($cache_path, 0777, true); 
+} 
+
 // Get a list of all the elements with the name 'item'
 foreach ($doc->getElementsByTagName('item') as $node) {
   if($fetched < $maxfetch ) {
+    $cache_file = "cache/" . md5($url).".json";
+    if(file_exists($cache_file)) {
+        //we have a cached json
+        $string = file_get_contents($cache_file); 
+        $itemRSS = json_decode($string, true);
+    } else {
     $mydesc="";
     $mydate="";
     libxml_use_internal_errors(true);
@@ -153,6 +163,8 @@ foreach ($doc->getElementsByTagName('item') as $node) {
 		'link' => $node->getElementsByTagName('link')->item(0)->nodeValue,
 		'date' => $mydate
 	);
+    file_put_contents("cache/".md5($url).".json", json_encode($itemRSS));
+    }
 	array_push($arrFeeds, $itemRSS);
   }
 }
