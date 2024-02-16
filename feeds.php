@@ -78,15 +78,20 @@ function fgc_ttl($url,$cachetime,$cachepath) {
 
     return $cache;
 }
-if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT']) ) {
-    $cache_path=$_SERVER['DOCUMENT_ROOT']."./.cache/";
-    if (!file_exists($cache_path)) { 
-        mkdir($cache_path, 0777, true); 
+
+if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT'] && $_SERVER['DOCUMENT_ROOT']!="/" ) ) {
+    if(dirname($_SERVER['DOCUMENT_ROOT']) != "/" ) {
+        $cache_path=dirname($_SERVER['DOCUMENT_ROOT'])."/.cache/";
         if (!file_exists($cache_path)) { 
-            $cache_path="../.cache/";
+                mkdir($cache_path, 0777, true); 
+                if (!file_exists($cache_path)) { 
+                 $cache_path=dirname( dirname(__FILE__) )."/.cache/";
+                }
         }
-    }
-} else { $cache_path="../.cache/"; }
+    } else { $cache_path=dirname( dirname(__FILE__) )."/.cache/"; }
+} else { 
+    $cache_path=dirname( dirname(__FILE__) )."/.cache/"; 
+}
 
 if (!file_exists($cache_path)) { 
     mkdir($cache_path, 0777, true); 
