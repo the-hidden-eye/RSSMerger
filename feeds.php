@@ -235,7 +235,6 @@ try {
             sxml_append($rss->channel, $feed);
             array_push($sentlinks,$myurl);
             array_push($senttitles,$mytitle);
-
         }
     }
     // Display
