@@ -1,45 +1,79 @@
 <?php
 error_reporting(E_ERROR | E_PARSE);
 $maxfetch=5;
+function logheader($term,$msg) {
+    if (php_sapi_name() == "cli") {
+        // In cli-mode
+        fwrite(STDERR,$term." : ".$msg."\n");
+    } else {
+        // Not in cli-mode
+        header("X-".$term.": ".$msg);
+    }
+}
+function fgc_ttl($url,$cachetime,$cachepath) {
+    $sum=md5($url);
+    $cache_path="./".$cachepath;
+    if (!file_exists($cache_path)) { 
+        mkdir($cache_path, 0777, true); 
+    }
+    $cache_file = $cache_path .'/'. $sum.".cache" ;
+    $cache_data = $cache_path .'/'. $sum.".cache.data" ;
+    $hdrmsg="";
+    //$hdrmsg=$cache_file;
+    if (!file_exists($cache_path)) { 
+        mkdir($cache_path, 0777, true); 
+    }
+    $filefound="no";
+    if (file_exists($cache_file)) { $filefound="yes" ; }
+    $hdrmsg=$hdrmsg." fgc_found: ".$filefound;
+    if (file_exists($cache_file)) {
+        $parsedfile=json_decode(file_get_contents($cache_file), true);
+        $timediff=(microtime(true) - $parsedfile["time"]) /1000 ;
+        $hdrmsg=$hdrmsg." found_fgc_json:".$filefound;
+        $hdrmsg=$hdrmsg." time :".$timediff. " of ".$cachetime. "TTL ";
+        if(  $timediff  > $cachetime  ) {
+        //if(time() - filemtime($cache_file) > $cachetime) {
+        //$hdrmsg=$hdrmsg." expired :".$cache_file . $timediff ." / ".$cachetime;
+        $hdrmsg=$hdrmsg." found_fgc_expired :". $timediff ." / ".$cachetime;
+            $cache=file_get_contents($url);
+            //$cacheobj["fgc"]=base64_encode($cache) ;file_put_contents($cache_file, json_encode($cacheobj));
+            file_put_contents($cache_data, $cache);
+        } else {
+            //$hdrmsg=$hdrmsg." cached :".$cache_file;
+            $hdrmsg=$hdrmsg." fgc_cached ";
+            $cache = file_get_contents($cache_data);
+            //$cache=base64_decode($parsedfile["fgc"]);
+        }
+    } else {
+        $cache=file_get_contents($url);
+        $cacheobj=array();$cacheobj["time"]=microtime(true) ;
+        //$cacheobj["fgc"]=base64_encode($cache) ;file_put_contents($cache_file, json_encode($cacheobj));
+        file_put_contents($cache_data, $cache);
+        //$hdrmsg=$hdrmsg." fetched :".$cache_file;
+        $hdrmsg=$hdrmsg." fetched ";
+    }
+    logheader("FGC-".$sum, $hdrmsg);
 
-function fgc($url) {
-    $cache_path="cache/";
-    $cache_file = $cache_path . md5($url);
-    if (!file_exists($cache_path)) { 
-        mkdir($cache_path, 0777, true); 
-    } 
-    if (file_exists($cache_file)) {
-        if(time() - filemtime($cache_file) > 864000) {
-            $cache = file_get_contents($url);
-            file_put_contents($cache_file, $cache);
-        } else {
-            $cache = file_get_contents($cache_file);
-        }
-    } else {
-        $cache = file_get_contents($url);
-        file_put_contents($cache_file, $cache);
-    }
     return $cache;
 }
-function fgc_ttl($url,$cachetime) {
-    $cache_path="cache/";
-    $cache_file = $cache_path . md5($url);
-    if (!file_exists($cache_path)) { 
-        mkdir($cache_path, 0777, true); 
-    } 
-    if (file_exists($cache_file)) {
-        if(time() - filemtime($cache_file) > $cachetime) {
-            $cache = file_get_contents($url);
-            file_put_contents($cache_file, $cache);
-        } else {
-            $cache = file_get_contents($cache_file);
+
+if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT'] && $_SERVER['DOCUMENT_ROOT']!="/" ) ) {
+    if(dirname($_SERVER['DOCUMENT_ROOT']) != "/" ) {
+        $cache_path=dirname($_SERVER['DOCUMENT_ROOT'])."/.cache/";
+        if (!file_exists($cache_path)) { 
+                mkdir($cache_path, 0777, true); 
+                if (!file_exists($cache_path)) { 
+                 $cache_path=dirname( dirname(__FILE__) )."/.cache/";
+                }
         }
-    } else {
-        $cache = file_get_contents($url);
-        file_put_contents($cache_file, $cache);
-    }
-    return $cache;
+    } else { $cache_path=dirname( dirname(__FILE__) )."/.cache/"; }
+} else { 
+    $cache_path=dirname( dirname(__FILE__) )."/.cache/"; 
 }
+
+if (!file_exists($cache_path)) { 
+    mkdir($cache_path, 0777, true); 
+} 
 
 // Create a new DOMDocument object
 $doc = new DOMDocument();
@@ -57,9 +91,6 @@ $feedlink=$doc->getElementsByTagName('link')->item(0)->nodeValue;
 $feedgene=$doc->getElementsByTagName('generator')->item(0)->nodeValue;
 $feedlang=$doc->getElementsByTagName('language')->item(0)->nodeValue;
 
-if (!file_exists("cache/")) { 
-    mkdir($cache_path, 0777, true); 
-} 
 
 // Get a list of all the elements with the name 'item'
 foreach ($doc->getElementsByTagName('item') as $node) {

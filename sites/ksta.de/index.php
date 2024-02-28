@@ -2,16 +2,6 @@
 $time_start = microtime(true);
 $runtime_log=array();
 
-function logheader($term,$msg) {
-    if (php_sapi_name() == "cli") {
-        // In cli-mode
-        fwrite(STDERR,$term." : ".$msg."\n");
-    } else {
-        // Not in cli-mode
-        header("X-".$term.": ".$msg);
-    }
-}
-
 
 if (php_sapi_name() == "cli") {
     // In cli-mode
@@ -49,7 +39,15 @@ function xmlencode_notags($input) {
     );  
     }
 
-
+function logheader($term,$msg) {
+    if (php_sapi_name() == "cli") {
+        // In cli-mode
+        fwrite(STDERR,$term." : ".$msg."\n");
+    } else {
+        // Not in cli-mode
+        header("X-".$term.": ".$msg);
+    }
+}
 function fgc_ttl($url,$cachetime,$cachepath) {
     $sum=md5($url);
     $cache_path="./".$cachepath;
@@ -96,19 +94,24 @@ function fgc_ttl($url,$cachetime,$cachepath) {
 
     return $cache;
 }
-if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT']) ) {
-    $cache_path=$_SERVER['DOCUMENT_ROOT']."./.cache/";
+    
+    if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT'] && $_SERVER['DOCUMENT_ROOT']!="/" ) ) {
+        if(dirname($_SERVER['DOCUMENT_ROOT']) != "/" ) {
+            $cache_path=dirname($_SERVER['DOCUMENT_ROOT'])."/.cache/";
+            if (!file_exists($cache_path)) { 
+                    mkdir($cache_path, 0777, true); 
+                    if (!file_exists($cache_path)) { 
+                     $cache_path=dirname( dirname(__FILE__) )."/.cache/";
+                    }
+            }
+        } else { $cache_path=dirname( dirname(__FILE__) )."/.cache/"; }
+    } else { 
+        $cache_path=dirname( dirname(__FILE__) )."/.cache/"; 
+    }
+    
     if (!file_exists($cache_path)) { 
         mkdir($cache_path, 0777, true); 
-        if (!file_exists($cache_path)) { 
-            $cache_path="../.cache/";
-        }
-    }
-} else { $cache_path="../.cache/"; }
-
-if (!file_exists($cache_path)) { 
-    mkdir($cache_path, 0777, true); 
-} 
+    } 
 // Create a new DOMDocument object
 $doc = new DOMDocument();
 // Load the RSS file into the object
