@@ -95,23 +95,23 @@ function fgc_ttl($url,$cachetime,$cachepath) {
     return $cache;
 }
     
-    if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT'] && $_SERVER['DOCUMENT_ROOT']!="/" ) ) {
-        if(dirname($_SERVER['DOCUMENT_ROOT']) != "/" ) {
-            $cache_path=dirname($_SERVER['DOCUMENT_ROOT'])."/.cache/";
-            if (!file_exists($cache_path)) { 
-                    mkdir($cache_path, 0777, true); 
-                    if (!file_exists($cache_path)) { 
-                     $cache_path=dirname( dirname(__FILE__) )."/.cache/";
-                    }
-            }
-        } else { $cache_path=dirname( dirname(__FILE__) )."/.cache/"; }
-    } else { 
-        $cache_path=dirname( dirname(__FILE__) )."/.cache/"; 
-    }
-    
-    if (!file_exists($cache_path)) { 
-        mkdir($cache_path, 0777, true); 
-    } 
+if(isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT'] && $_SERVER['DOCUMENT_ROOT']!="/" ) ) {
+    if(dirname($_SERVER['DOCUMENT_ROOT']) != "/" ) {
+        $cache_path=dirname($_SERVER['DOCUMENT_ROOT'])."/.cache/";
+        if (!file_exists($cache_path)) { 
+                mkdir($cache_path, 0777, true); 
+                if (!file_exists($cache_path)) { 
+                 $cache_path=dirname( dirname(__FILE__) )."/.cache/";
+                }
+        }
+    } else { $cache_path=dirname( dirname(__FILE__) )."/.cache/"; }
+} else { 
+    $cache_path=dirname( dirname(__FILE__) )."/.cache/"; 
+}
+
+if (!file_exists($cache_path)) { 
+    mkdir($cache_path, 0777, true); 
+} 
 // Create a new DOMDocument object
 $doc = new DOMDocument();
 // Load the RSS file into the object
@@ -122,7 +122,8 @@ if(isset($_GET['feed'])) {
     $feedtarget=$_GET['feed'];
 }
 $runtime_log["1init"]= (microtime(true) - $time_start)/1000;
-$rawxml=fgc_ttl($feedtarget,3600,$cache_path);
+//$rawxml=fgc_ttl($feedtarget,1000,$cache_path);
+$rawxml=file_get_contents($feedtarget);
 $runtime_log["2load"]= (microtime(true) - $time_start)/1000;
 //$dom->loadHTML($rawhtml);
 $doc->loadXML($rawxml);
