@@ -79,7 +79,7 @@ if (!file_exists($cache_path)) {
 $doc = new DOMDocument();
 // Load the RSS file into the object
 //$doc->load('https://lotta-magazin.de/rss.xml');
-$rawxml=fgc_ttl("https://lotta-magazin.de/rss.xml",3600);
+$rawxml=fgc_ttl("https://lotta-magazin.de/rss.xml",3600,$cache_path);
 //$dom->loadHTML($rawhtml);
 $doc->loadXML($rawxml);
 
