@@ -110,7 +110,7 @@ foreach ($doc->getElementsByTagName('item') as $node) {
     if (!file_exists("cache/". md5($node->getElementsByTagName('link')->item(0)->nodeValue))) { 
         $fetched=$fetched+1;
     }
-    $rawhtml=mb_convert_encoding(fgc($node->getElementsByTagName('link')->item(0)->nodeValue), 'HTML-ENTITIES', "UTF-8"); ;
+    $rawhtml=mb_convert_encoding(fgc_ttl($node->getElementsByTagName('link')->item(0)->nodeValue,3600,$cache_path), 'HTML-ENTITIES', "UTF-8"); ;
     //$dom->loadHTML($rawhtml);
     $dom->loadHTML(mb_encode_numericentity($rawhtml, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
     libxml_use_internal_errors(false);
