@@ -138,7 +138,11 @@ function handle_feed($feed,$myttl,$cachepath)
     }
 
     // Done
-    return $feed_content->xpath('/rss//item');
+    if($feed_content) {
+        return $feed_content->xpath('/rss//item');
+    } else {
+        return false;
+    }
 }
 
 $myttl="";
