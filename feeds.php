@@ -182,10 +182,16 @@ try {
                 $feedtitle=$feedtitle." ".$ltitle;
                 $ldescription = $xml->channel->description;
                 $feeddesc=$feeddesc." ".$ldescription;
-                $feeds[] = handle_feed($f,$cache_time,$cache_path);
+                $tmpres = handle_feed($f,$cache_time,$cache_path);
+                if($tmpres) {
+                    $feeds[] = $tmpres;
+                }
             }
         } else {
-            $feeds[] = handle_feed($_GET['feeds'],$myttl,$cache_path);
+            $tmpres=handle_feed($_GET['feeds'],$myttl,$cache_path)
+            if($tmpres) {
+                $feeds[] = $tmpres;
+            }
         }
     }
 
